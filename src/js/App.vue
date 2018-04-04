@@ -8,13 +8,15 @@
 import THREE from './three/setup'
 import noise from './three/perlin'
 
-var lightShadowMapViewer,
-    light
+var lightShadowMapViewer, light, spheres
 
 export default {
     name: 'App',
     data: () => ({
-        amount: 500,
+        amount: {
+            spheres: 500,
+            trees: 1500,
+        },
         camera: null,
         controls: null,
         geometry: null,
@@ -29,6 +31,9 @@ export default {
         spheres: [],
         timer: 0,
         triangles: [],
+        variations: [],
+        variations2: [],
+        vectors: [],
     }),
     methods: {
         init: function() {
@@ -45,8 +50,12 @@ export default {
             this.renderer = new THREE.WebGLRenderer({
                 antialias: true
             })
+
+
             this.renderer.setPixelRatio(window.devicePixelRatio)
             this.renderer.setSize(this.size.width, this.size.height)
+            this.renderer.shadowMap.enabled = true
+            this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
             document.body.appendChild(vue.renderer.domElement)
 
             // imposta la camera
@@ -63,33 +72,75 @@ export default {
             this.controls.maxPolarAngle = Math.PI / 2
 
 
+            // sfondo del paesaggio
+
+            // var textures = this.getTextureFromAtlasFile('images/test.jpg', 6)
+            // // console.log(textures)
+            // var materials = []
+            //
+            // for (var i = 0; i < 6; i++) {
+            //     materials.push(new THREE.MeshBasicMaterial({ map: textures[i], wireframe: true }))
+            // }
+            // var skyGeometry = new THREE.CubeGeometry(1500, 1500, 1500)
+            //
+            // var skyBox = new THREE.Mesh(skyGeometry, materials)
+            // skyBox.geometry.scale(1,1, - 1)
+            // // skyBox.position.y = 480
+            // this.scene.add(skyBox)
+
+            // var bgGeometry = new THREE.BoxGeometry(2500,500,500)
+            // var bgMaterials = [
+            //     new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load('images/bg-2.jpg'), side: THREE.DoubleSide}), // Right side
+            //     new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load('images/bg-4.jpg'), side: THREE.DoubleSide}), // Left Side
+            //     new THREE.MeshBasicMaterial({color: 0xcccccc, side: THREE.DoubleSide}), // Top Side
+            //     new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.DoubleSide}), // Bottom Side
+            //     new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load('images/bg-1.jpg'), side: THREE.DoubleSide}), // Front Side
+            //     new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load('images/bg-3.jpg'), side: THREE.DoubleSide}), // Back Side
+            // ]
+            //
+            // var bg = new THREE.Mesh(bgGeometry, bgMaterials)
+            // bg.position.y = 0
+            // this.scene.add(bg)
+
+            // var bg = new THREE.Mesh(bgGeometry, bgMaterial)
+            // this.scene.add(bg)
+
             // Piano bianco su cui poggia tutto
-            var geometryPlane = new THREE.PlaneGeometry(10000, 10000, 1, 1)
+            var geometryPlane = new THREE.PlaneBufferGeometry(10000, 10000)
             var materialPlane = new THREE.MeshBasicMaterial({
                 color: 0xffffff,
                 side: THREE.DoubleSide
             })
+            materialPlane.color.setHSL(.75, .5, 1)
+
             var plane = new THREE.Mesh(geometryPlane, materialPlane)
-            this.scene.add(plane)
             plane.rotation.x = -90 * Math.PI / 180
             plane.position.y = -10
+            plane.receiveShadow = true
+            this.scene.add(plane)
 
 
             // Alberelli
             var treeGeometry = new THREE.CylinderGeometry(0, 5, 15, 3, 1)
             var treeMaterial = new THREE.MeshPhongMaterial({
-                color: 0xf3f3f3, // colore
-                flatShading: true
+                color: 0x4a4a4a, // colore
+                flatShading: true,
+                side: THREE.DoubleSide
             })
 
 
             // Sfere
+            spheres = new THREE.Group()
+            this.scene.add(spheres)
+
             var sphereMaterial = new THREE.MeshPhongMaterial({
                 color: 0xffffff,
                 flatShading: false,
+                // transparent: true,
+                // opacity: 0.2,
             })
 
-            for (var i = 0; i < this.amount; i++) {
+            for (var i = 0; i < this.amount.trees; i++) {
                 var triangle = new THREE.Mesh(treeGeometry, treeMaterial)
                 triangle.position.x = Math.random() * 2000 - 1000
                 triangle.position.y = 0
@@ -98,51 +149,66 @@ export default {
                 triangle.matrixAutoUpdate = false
                 this.scene.add(triangle)
                 this.triangles.push(triangle)
+            }
 
+            for (var i = 0; i < this.amount.spheres; i++) {
                 var delta = Math.sin(i * Math.random())
-                var geometrySphere = new THREE.SphereBufferGeometry(2 * delta, 20, 20, 10, Math.PI * 2)
+                var geometrySphere = new THREE.SphereBufferGeometry(1, 20, 20, 10, Math.PI * 2)
                 var sphere = new THREE.Mesh(geometrySphere, sphereMaterial)
-                sphere.position.x = Math.random() * 2000 - 1000
-                sphere.position.y = Math.random() * 50 + 20
-                sphere.position.z = Math.random() * 2000 - 1000
+
+                var deltaX = Math.random() * 2000 - 1000
+                var deltaY = Math.random() * 50 + 20
+                var deltaZ = Math.random() * 2000 - 1000
+
+                var vector = new THREE.Vector3(deltaX, deltaY, deltaZ)
+                sphere.position.copy(vector)
+                this.vectors.push(vector)
+
+                var variation = Math.random() * 20 + 10
+                this.variations.push(variation)
+
+                this.variations2.push(Math.random())
+
+                sphere.scale.x = sphere.scale.y = sphere.scale.z = delta * 2
                 sphere.updateMatrix()
-                // sphere.matrixAutoUpdate = false
-                this.scene.add(sphere)
+                spheres.add(sphere)
                 this.spheres.push(sphere)
             }
 
 
             // Illuminazione
-            var lightDir1 = new THREE.DirectionalLight(0xffffff)
-            lightDir1.position.set(1, 1, 1)
-            // this.scene.add(lightDir1)
-            var lightDir2 = new THREE.DirectionalLight(0x000000)
-            lightDir2.position.set(-1, -1, -1)
-            // this.scene.add(lightDir2)
+            var dirLight = new THREE.DirectionalLight(0xffffff, 1)
+            dirLight.color.setHSL(0.1, 1, 0.95)
+            dirLight.position.set(5, 10, 50)
+            dirLight.position.multiplyScalar(30)
+            this.scene.add(dirLight)
 
-            var lightAmb = new THREE.AmbientLight(0x191919)
-            this.scene.add(lightAmb)
+            dirLight.castShadow = true
+            dirLight.shadow.mapSize.width = this.size.width
+            dirLight.shadow.mapSize.height = this.size.height
 
-            // luce che genera ombre
-            light  = new THREE.SpotLight(0xffffff, 2, 0, Math.PI / 2)
-            light.position.set(50, 1000, 200)
-            // light.target.position.set(0, 0, 0)
+            var d = 5
+            dirLight.shadow.camera.left = -d
+            dirLight.shadow.camera.right = d
+            dirLight.shadow.camera.top = d
+            dirLight.shadow.camera.bottom = -d
 
-            // light.castShadow = true
+            dirLight.shadow.camera.near = 10
+            dirLight.shadow.camera.far = 500
+            dirLight.shadow.bias = -0.0001
 
-            // light.shadow = new THREE.LightShadow(new THREE.PerspectiveCamera(50, 1, 1, 500))
-            // light.shadow.bias = 0.0001
-            //
-            // light.shadow.mapSize.width = this.size.width * 2
-            // light.shadow.mapSize.height = this.size.height * 2
+            var dirLightHelper = new THREE.DirectionalLightHelper(dirLight)
 
-            this.scene.add(light)
+            var hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.9)
+            hemiLight.color.setHSL(0, 0, 0)
 
-            lightShadowMapViewer = new THREE.SpotLightHelper(light)
-            this.scene.add(lightShadowMapViewer)
+            hemiLight.groundColor.setHSL(0, 0, 1)
+            hemiLight.position.set(0, 100, 0)
+            this.scene.add(hemiLight)
 
-            this.renderer.shadowMap.enabled = true
-            this.renderer.shadowMap.type = THREE.PCFShadowMap
+            var hemitLightHelper = new THREE.HemisphereLightHelper(hemiLight, 10)
+            this.scene.add(hemitLightHelper)
+
             window.addEventListener('resize', this.onWindowResize, false);
 
         },
@@ -152,10 +218,13 @@ export default {
 
             var r = Date.now() * 0.0005;
 
-            for (var i = 0; i < this.amount; i++) {
-                var sphere = this.spheres[i]
-                var delta = Math.sin(r)
-                sphere.position.y = sphere.position.y + (delta / 6) * Math.random()
+            for (var i = 0; i < this.amount.spheres; i++) {
+                var sphera = this.spheres[i]
+                var delta = Math.sin(r * this.variations2[i]) * 10 + this.variations[i]
+
+                this.vectors[i].y = delta
+                sphera.position.copy(this.vectors[i])
+                // sphera.position.y = sphera.position.y + (delta) * Math.random()
             }
 
             this.controls.update()
@@ -172,9 +241,31 @@ export default {
             var vue = this
             this.renderer.render(vue.scene, vue.camera)
         },
-        createHUD: function() {
+        getTextureFromAtlasFile: function(atlasImgUrl, tilesNum) {
+            var textures = []
+            for (var i = 0; i < tilesNum; i++) {
+                textures[i] = new THREE.Texture()
+            }
 
-        }
+            var imageObj = new Image()
+            imageObj.onload = function() {
+                var canvas, context
+                var tileWidth = imageObj.height
+
+                for (var i = 0; i < textures.length; i++) {
+                    canvas = document.createElement('canvas')
+                    context = canvas.getContext('2d')
+                    canvas.height = tileWidth
+                    canvas.width = tileWidth
+                    context.drawImage(imageObj, tileWidth * i, 0, tileWidth, tileWidth, 0, 0, tileWidth, tileWidth)
+                    textures[i].image = canvas
+                    textures[i].needsUpdate = true
+                }
+            }
+
+            imageObj.src = atlasImgUrl
+            return textures
+        },
     },
     mounted() {
         this.init()

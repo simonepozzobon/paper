@@ -23,7 +23,7 @@ mix
     })
     .copy('src/index.html', 'dist')
     // .copyDirectory('src/fonts', 'dist/fonts')
-    // .copyDirectory('src/images/ready', 'dist/images')
+    .copyDirectory('src/images/ready', 'dist/images')
     .sass('src/sass/app.scss', 'dist/css')
     // .combine(['dist/js/manifest.js', 'dist/js/vendor.js', 'dist/js/app.js'], 'dist/js/osr.js')
     // .minify('dist/js/osr.js')
