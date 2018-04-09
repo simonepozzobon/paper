@@ -32,6 +32,8 @@
     },
     "dependencies": {
         "babel-polyfill": "^6.26.0",
+        "dat.gui": "^0.7.1",
+        "glslify": "^6.1.1",
         "normalize-scss": "^7.0.1",
         "normalize.css": "^8.0.0",
         "paper": "^0.11.5",
