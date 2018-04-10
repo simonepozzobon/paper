@@ -12012,10 +12012,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
-var lightShadowMapViewer,
-    light,
-    spheres,
-    clock = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].Clock();
+var lightShadowMapViewer, light, spheres;
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'App',
@@ -12026,6 +12023,7 @@ var lightShadowMapViewer,
                 trees: 1500
             },
             camera: null,
+            clock: new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].Clock(),
             colors: {
                 white: 0xffffff,
                 black: 0x191919,
@@ -12043,6 +12041,10 @@ var lightShadowMapViewer,
             gui: null,
             material: null,
             mesh: null,
+            obj: {
+                particleSystem: null
+            },
+            options: {},
             particles: [],
             particlesInitialized: false,
             particlesCount: 0,
@@ -12062,9 +12064,16 @@ var lightShadowMapViewer,
                 hBlur: null,
                 vBlur: null
             },
+            spawnerOptions: {
+                spawnRate: 15000,
+                horizontalSpeed: 1.5,
+                verticalSpeed: 1.33,
+                timeScale: 1
+            },
             spheres: [],
+            tick: 0,
             timer: 0,
-            timeScale: 0.001,
+            timeScale: 1,
             triangles: [],
             variations: [],
             variations2: [],
@@ -12138,7 +12147,7 @@ var lightShadowMapViewer,
             this.scene.add(this.plane);
 
             // Oggetto in primo piano
-            var cubeGeometry = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].CubeGeometry(50, 50, 50);
+            var cubeGeometry = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].BoxGeometry(50, 50, 50);
             var cubeMaterial = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].MeshStandardMaterial({
                 // color: this.colors.black,
                 // emissive: this.colors.black,
@@ -12148,17 +12157,65 @@ var lightShadowMapViewer,
                 flatShading: true
             });
 
+            this.obj.particleSystem = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].GPUParticleSystem({
+                maxParticles: 250000,
+                particleNoiseTex: new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].TextureLoader().load('/images/sprites/perlin-512.png'),
+                particleSpriteTex: new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].TextureLoader().load('/images/sprites/sphere.png')
+            });
+            this.scene.add(this.obj.particleSystem);
+            this.obj.particleSystem.position.set(0, 100, 40);
+
+            this.obj.particleSystem.init();
+
             var cube = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].Mesh(cubeGeometry, cubeMaterial);
             cube.position.set(0, 65, 40);
             cube.castShadow = true;
             cube.receiveShadow = true;
-            this.scene.add(cube);
 
-            // var particleSystem = new THREE.GPUParticleSystem({
-            //     maxParticles: 25000
-            // })
-            // this.scene.add(particleSystem)
-            this.initLight();
+            var testGeom = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].Geometry();
+            var colors = [];
+            for (var i = 0; i < 1000; i++) {
+                var vertex = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].Vector3();
+                vertex.x = Math.random() * 50 - 25;
+                vertex.y = Math.random() * 50 + 65;
+                vertex.z = Math.random() * 50 - 25;
+
+                // colors[ i ] = new THREE.Color( 0xffffff );
+                // colors[ i ].setHSL( ( vertex.x + 1000 ) / 2000, 1, 0.5 );
+                testGeom.vertices.push(vertex);
+            }
+            // testGeom.colors = colors
+
+            this.options = {
+                position: testGeom,
+                positionRandomness: .6,
+                velocity: new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].Vector3(),
+                velocityRandomness: .9,
+                color: this.colors.black,
+                colorRandomness: .1,
+                turbulence: 1,
+                lifetime: 10,
+                size: 2,
+                sizeRandomness: 3,
+                transparent: true,
+                opacity: 0.1
+            };
+
+            var spriteImg = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].TextureLoader().load('/images/sprites/sphere.png');
+            var particleMaterial = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].PointsMaterial({
+                size: 2,
+                color: this.colors.white,
+                // vertexColors: THREE.VertexColors,
+                map: spriteImg,
+                alphaTest: 0.5,
+                transparent: true
+            });
+            // particleMaterial.lights = true
+
+            var particles = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].Points(testGeom, particleMaterial);
+            particles.position.set(0, 0, 40);
+            // this.scene.add(cube)
+            this.scene.add(particles);
 
             // ILLUMINAZIONE
             var lightLeft = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].SpotLight(this.colors.white, .1);
@@ -12254,65 +12311,14 @@ var lightShadowMapViewer,
 
             window.addEventListener('resize', this.onWindowResize, false);
             window.addEventListener('mousemove', this.onMouseMove, false);
-        },
-        initLight: function initLight() {
-            for (var i = 0; i < this.particlesCount; i++) {
-                this.generateLight();
-            }
-            this.particlesInitialized = true;
-        },
-        generateLight: function generateLight() {
-            var size = Math.random() * 3;
-            var positionX = Math.random() * 380 - 190;
-            var positionZ = Math.random() * 300 - 150;
-            var velocity = Math.random() / 10 + 0.1;
-            var pointLight = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].PointLight(0xF5A623, 0.5, 50, 2);
-            pointLight.position.set(positionX, positionY, positionZ);
-
-            var spriteMap = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].TextureLoader().load('/images/sprites/sphere.png');
-            var spriteMaterial = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].SpriteMaterial({
-                map: spriteMap,
-                color: 0xF5A623
-            });
-            var sprite = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].Sprite(spriteMaterial);
-
-            if (!this.particlesInitialized) {
-                console.log('init');
-                var positionY = Math.random() * 200 + 20;
-                pointLight.position.set(positionX, positionY, positionZ);
-            } else {
-                pointLight.position.set(positionX, 200, positionZ);
-            }
-
-            sprite.scale.x = size;
-            sprite.scale.y = size;
-            sprite.scale.z = size;
-            // sprite.castShadow = true
-
-            pointLight.add(sprite);
-            var obj = {
-                pointLight: pointLight,
-                velocity: velocity
-            };
-            var index = this.particles.push(obj) - 1;
-            this.scene.add(this.particles[index].pointLight);
-        },
-        animateSprites: function animateSprites() {
-            for (var i = 0; i < this.particles.length; i++) {
-                this.particles[i].pointLight.position.y -= this.particles[i].velocity;
-                if (this.particles[i].pointLight.position.y <= 0) {
-                    this.scene.remove(this.particles[i].pointLight);
-                    this.particles.splice(i, 1);
-                    this.generateLight();
-                }
-            }
+            console.log(this.obj.particleSystem);
         },
         animate: function animate() {
             var vue = this;
-            requestAnimationFrame(vue.animate);
-            var delta = clock.getDelta() * this.timeScale;
+            var delta = this.clock.getDelta() * this.timeScale;
 
-            this.animateSprites();
+            requestAnimationFrame(vue.animate);
+
             // this.shaders.glitch.uniforms['amount'].value = Math.random()
             // this.shaders.glitch.uniforms['angle'].value = Math.random()
             // var value = Boolean(Math.round(Math.random()))
@@ -12325,9 +12331,24 @@ var lightShadowMapViewer,
             // //     this.plane.geometry.vertices[i].z = this.plane.geometry.vertices[i].z * delta
             // // }
             //
-            this.shaders.film.uniforms['time'].value += delta;
-            this.shaders.film.uniforms['sIntensity'].value = Math.random();
+            // this.shaders.film.uniforms['time'].value += delta
+            // this.shaders.film.uniforms['sIntensity'].value = Math.random()
             // this.shaders.film.uniforms.nIntensity.value = Math.random() / 10
+
+            this.tick += delta;
+            if (this.tick < 0) this.tick = 0;
+
+            if (delta > 0) {
+                this.options.position.x = Math.sin(this.tick * this.spawnerOptions.horizontalSpeed) * 30;
+                this.options.position.y = Math.sin(this.tick * this.spawnerOptions.verticalSpeed) * 10;
+                this.options.position.z = Math.sin(this.tick * this.spawnerOptions.horizontalSpeed + this.spawnerOptions.verticalSpeed) * 5;
+
+                for (var i = 0; i < this.spawnerOptions.spawnRate * delta; i++) {
+                    this.obj.particleSystem.spawnParticle(this.options);
+                }
+            }
+            // this.obj.particleSystem.dispose(new THREE.Vector3(0, 100, 0))
+            this.obj.particleSystem.update(this.tick);
 
             // this.controls.update()
             this.render();
@@ -12368,6 +12389,7 @@ var lightShadowMapViewer,
             this.shaders.vignette = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].ShaderPass(__WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].VignetteShader);
             this.shaders.vBlur = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].ShaderPass(__WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].VerticalBlurShader);
 
+            this.shaders.film.uniforms['grayscale'].value = 0;
             this.shaders.vignette.uniforms['offset'].value = 1.2;
             this.shaders.vignette.uniforms['darkness'].value = 1.2;
             this.shaders.hBlur.uniforms['h'].value = 0.0002;
@@ -12381,8 +12403,8 @@ var lightShadowMapViewer,
 
             this.shaders.film.renderToScreen = true;
 
-            // this.shaders.glitch.uniforms['byp'].value = false
-            // // this.shaders.vBlur.renderToScreen = true
+            this.shaders.glitch.uniforms['byp'].value = false;
+            // this.shaders.vBlur.renderToScreen = true
             // this.shaders.glitch.renderToScreen = true
             // dof.renderToScreen = true
         }
