@@ -9,6 +9,7 @@
 <script>
 import THREE from './three/setup'
 import noise from './three/perlin'
+import Tone from 'tone'
 import dat from 'dat.gui'
 var lightShadowMapViewer, light, spheres
 
@@ -20,6 +21,7 @@ export default {
                 spheres: 500,
                 trees: 1500,
             },
+
             camera: null,
             clock: new THREE.Clock(),
             colors: {
@@ -33,10 +35,12 @@ export default {
             composer: null,
             composerScene: null,
             controls: null,
+            datGui: false,
             film: null,
             geometry: null,
             glitch: null,
             gui: null,
+            helpers: false,
             material: null,
             mesh: null,
             obj: {
@@ -47,6 +51,7 @@ export default {
             particlesInitialized: false,
             particlesCount: 0,
             plane: null,
+            postProcessingActive: false,
             renderer: null,
             renderScene: null,
             scene: null,
@@ -76,9 +81,266 @@ export default {
             variations: [],
             variations2: [],
             vectors: [],
+            audio: {
+                source: {
+                    fat: new Tone.FatOscillator({
+                        frequency: 50,
+                        type: 'square',
+                    }),
+                    noise: new Tone.Noise({
+                        type: 'white',
+                        playbackRate: .2,
+                    }),
+                    tom: new Tone.MembraneSynth({
+                        pitchDecay : 1.2,
+                        octaves : 3,
+                        oscillator: {
+                            type: 'triangle'
+                        },
+                        envelope: {
+                            attack: 0.24,
+                            decay: 0.46,
+                            sustain: 0.37,
+                            release: 1.37,
+                            attackCurve: 'exponential'
+                        }
+                    }),
+                },
+                env: {
+                    droneVCA: new Tone.AmplitudeEnvelope({
+                        attack: .1,
+                        decay: 2.4,
+                        sustain: 1,
+                        release: 2.4,
+                    }),
+                    hatsADSR: new Tone.AmplitudeEnvelope({
+                        attack: 0.03,
+                        decay: 0.05,
+                        sustain: 0.37,
+                        release: 0.05,
+                    }),
+                },
+                fx: {
+                    autoFilter: null,
+                    filter: new Tone.Filter({
+                        frequency: 150,
+                        type: 'lowpass',
+                        rolloff: -24,
+                        Q: .1,
+                    }),
+                    noiseFilter: new Tone.Filter({
+                        frequency: 150,
+                        type: 'lowpass',
+                        rollof: -24,
+                        Q: .3,
+                    }),
+                    combFilter: new Tone.FeedbackCombFilter({
+                        delayTime: .2,
+                        resonance: .5,
+                    }),
+                    widener: new Tone.StereoWidener(.7),
+                    toMono: new Tone.Mono(),
+                    reverb: new Tone.Reverb({
+                        decay: 2.5,
+                        preDelay: 0.01,
+                        wet: 0.2
+                    })
+                },
+                meters: {
+                    tom: new Tone.Meter(),
+                    hats: new Tone.Meter(),
+                }
+            },
         }
     },
     methods: {
+        audioSetup: function() {
+            var fat = this.audio.source.fat
+            var noise = this.audio.source.noise
+            var tom = this.audio.source.tom
+            var env = this.audio.env.droneVCA
+            var filter = this.audio.fx.filter
+            var noiseFilter = this.audio.fx.noiseFilter
+            var combFilter = this.audio.fx.combFilter
+            var reverb = this.audio.fx.reverb
+
+
+            // START and generate Reverb impulse
+            reverb.generate().then(function(response) {
+                Tone.Transport.bpm.value = 125
+                Tone.Transport.start()
+            }).catch(errors => {
+                console.log(errors)
+            })
+
+
+            // TOM
+            var tomFilter = new Tone.Filter({
+                frequency: 550,
+                Q: 0.7,
+            })
+
+            // TOM SUB FREQ
+            var tomSub = new Tone.OmniOscillator({
+                frequency: 440,
+                detune: .5,
+                type: 'pwm'
+            })
+
+            var tomSubADSR = new Tone.AmplitudeEnvelope({
+                attack: 0.03,
+                decay: 0.05,
+                sustain: 0.37,
+                release: 0.05,
+            })
+
+            var tomSubFilter = new Tone.Filter({
+                frequency: 141,
+                rolloff: -96,
+                Q: 0.1,
+                gain: 0.1,
+                type: 'bandpass'
+            })
+
+
+            // HATS
+            var hats = new Tone.Noise({
+                type: 'white'
+            })
+
+            var hatsADSR = this.audio.env.hatsADSR
+
+            // EFX - REVERB ADSR
+            var reverbADSR = new Tone.AmplitudeEnvelope({
+                attack: 0.03,
+                decay: 0.05,
+                sustain: 0.37,
+                release: 0.05,
+            })
+
+
+            // EFX - CHORUS
+            var chorus = new Tone.Chorus({
+                frequency: 4,
+                delayTime: 36,
+                depth: 0.7,
+                type: 'triangle',
+                spread: 90,
+            })
+
+
+            // EFX - PING PONG DELAY
+            var pingPong = new Tone.PingPongDelay('16n', 0.2)
+            pingPong.wet.value = .16
+
+
+            // VOLUME MIXER
+            var bassVol = new Tone.Volume(-6)
+            var sequenceVol = new Tone.Volume(-9)
+            var hatsVol = new Tone.Volume(-28)
+            var limiter = new Tone.Limiter(-3)
+
+            fat.start().connect(filter)
+            filter.connect(combFilter)
+            combFilter.connect(bassVol)
+
+            noise.start().connect(noiseFilter)
+            noiseFilter.connect(sequenceVol)
+
+            tom.connect(tomFilter)
+            tomFilter.connect(chorus)
+            chorus.connect(reverb)
+            reverb.connect(reverbADSR)
+            reverbADSR.connect(pingPong)
+            pingPong.connect(sequenceVol).connect(this.audio.meters.tom)
+
+            tomSub.start().connect(tomSubFilter)
+            tomSubFilter.connect(tomSubADSR)
+            tomSubADSR.connect(reverb)
+
+            hats.start().connect(hatsADSR)
+            hatsADSR.connect(this.audio.meters.hats).connect(hatsVol)
+
+            // bassVol.connect(limiter)
+            // sequenceVol.connect(limiter)
+            hatsVol.connect(limiter)
+            limiter.toMaster()
+
+            var bassSeq = new Tone.Sequence(function(time, note){
+                fat.frequency.value = note
+
+            }, ["A1", "B1", "A#2", null, 'A1', 'B1', 'A#2'], "2n")
+
+            var arpSeq = new Tone.Sequence(function(time, note){
+                var lower = new Tone.Frequency(note).transpose(-12)
+
+                tomSub.frequency.value = lower
+                tom.triggerAttackRelease(note, '8n')
+
+                tomSubADSR.triggerAttackRelease({
+                    duration: .5,
+                    velocity: 0.7
+                })
+
+                reverbADSR.triggerAttackRelease({
+                    duration: 1,
+                    velocity: 1,
+                })
+            }, ['A1', 'B2', 'A#3', 'A2'], '8n')
+
+            var hatsSeq = new Tone.Sequence(function(time, note) {
+                hatsADSR.triggerAttackRelease(note, '16n')
+
+            }, ['A3'], '16n')
+
+            bassSeq.start()
+            arpSeq.start()
+            hatsSeq.start()
+
+            fat.sync()
+            hats.sync()
+            tomSub.sync()
+
+            // GUI
+            var gui = new dat.GUI()
+            var g1 = gui.addFolder('Sound')
+            g1.add(tom, 'pitchDecay', 0, 1).step(0.05)
+            g1.add(tom, 'octaves', 0, 12).step(1)
+            g1.add(tom.envelope, 'attack', 0, 1).step(0.01)
+            g1.add(tom.envelope, 'decay', 0, 5).step(0.01)
+            g1.add(tom.envelope, 'sustain', 0, 1).step(0.01)
+            g1.add(tom.envelope, 'release', 0, 5).step(0.01)
+
+            var g4 = gui.addFolder('Tom Sub Osc')
+            g4.add(tomSubFilter.frequency, 'value', 0, 2000).step(1)
+            g4.add(tomSubFilter.Q, 'value', 0, 2).step(0.01)
+            g4.add(tomSubFilter.gain, 'value', 0, 1).step(0.01)
+            g4.add(tomSubADSR, 'attack', 0, 1).step(0.01)
+            g4.add(tomSubADSR, 'decay', 0, 1).step(0.01)
+            g4.add(tomSubADSR, 'sustain', 0, 1).step(0.01)
+            g4.add(tomSubADSR, 'release', 0, 1).step(0.01)
+
+            var g5 = gui.addFolder('Hats')
+            g5.add(hatsVol.volume, 'value', -64, 0).step(1)
+            g5.add(hatsADSR, 'attack', 0, 1).step(0.01)
+            g5.add(hatsADSR, 'decay', 0, 1).step(0.01)
+            g5.add(hatsADSR, 'sustain', 0, 1).step(0.01)
+            g5.add(hatsADSR, 'release', 0, 1).step(0.01)
+
+            var g2 = gui.addFolder('Reverb Envelope')
+            g2.add(reverb.wet, 'value', 0, 1).step(0.01)
+            g2.add(reverbADSR, 'attack', 0, 1).step(0.01)
+            g2.add(reverbADSR, 'decay', 0, 1).step(0.01)
+            g2.add(reverbADSR, 'sustain', 0, 1).step(0.01)
+            g2.add(reverbADSR, 'release', 0, 1).step(0.01)
+
+            var g3 = gui.addFolder('Chorus')
+            g3.add(chorus.frequency, 'value', 0, 2000)
+            g3.add(chorus, 'delayTime', 0, 500)
+            g3.add(chorus, 'depth', 0, 1).step(0.1)
+            g3.add(chorus, 'spread', 0, 360)
+
+        },
         init: function() {
             var vue = this
             var gui = new dat.GUI()
@@ -141,9 +403,11 @@ export default {
             this.plane.rotation.x = -90 * Math.PI / 180
             this.plane.castShadow = true
             this.plane.receiveShadow = true
+            this.plane.geometry.dynamic = true
             for (var i = 0; i < this.plane.geometry.vertices.length; i++) {
                 this.plane.geometry.vertices[i].z = Math.random() * height
             }
+            this.plane.matrixAutoUpdate = true
 
             this.scene.add(this.plane)
 
@@ -167,11 +431,7 @@ export default {
             this.scene.add(this.obj.particleSystem)
             this.obj.particleSystem.position.set(0, 100, 40)
 
-
             this.obj.particleSystem.init()
-
-
-
 
             var cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
             cube.position.set(0, 65, 40)
@@ -201,8 +461,8 @@ export default {
 				color: this.colors.black,
 				colorRandomness: .1,
 				turbulence: 1,
-				lifetime: 10,
-				size: 2,
+				lifetime: 2,
+				size: 3,
 				sizeRandomness: 3,
                 transparent: true,
                 opacity: 0.1,
@@ -220,10 +480,10 @@ export default {
             })
             // particleMaterial.lights = true
 
-            var particles = new THREE.Points(testGeom, particleMaterial)
-            particles.position.set(0, 0, 40)
-            // this.scene.add(cube)
-            this.scene.add(particles)
+            // var particles = new THREE.Points(testGeom, particleMaterial)
+            // particles.position.set(0, 0, 40)
+            // // this.scene.add(cube)
+            // this.scene.add(particles)
 
 
             // ILLUMINAZIONE
@@ -263,62 +523,66 @@ export default {
 
 
             // DAT GUI
-            var guiL = gui.addFolder('neonLeft')
-            guiL.add(rectLightLeft, 'intensity', 0, 1000)
-            guiL.add(rectLightLeft.position, 'x', -300, 300)
-            guiL.add(rectLightLeft.position, 'y', 0, 300)
-            guiL.add(rectLightLeft.position, 'z', 0, 300)
-            guiL.add(rectLightLeft.rotation, 'x', 0, Math.PI)
-            guiL.add(rectLightLeft.rotation, 'y', 0, Math.PI)
-            guiL.add(rectLightLeft.rotation, 'z', 0, Math.PI)
-            var guiR = gui.addFolder('neonRight')
-            guiR.add(rectLighRight, 'intensity', 0, 1000)
-            guiR.add(rectLighRight.position, 'x', -300, 300)
-            guiR.add(rectLighRight.position, 'y', 0, 300)
-            guiR.add(rectLighRight.position, 'z', 0, 300)
-            guiR.add(rectLighRight.rotation, 'x', 0, Math.PI)
-            guiR.add(rectLighRight.rotation, 'y', 0, Math.PI)
-            guiR.add(rectLighRight.rotation, 'z', 0, Math.PI)
-            var g4 = gui.addFolder('cube position')
-            g4.add(cube.position, 'x', 0, 200)
-            g4.add(cube.position, 'y', 0, 200)
-            g4.add(cube.position, 'z', 0, 200)
-            var g1 = gui.addFolder('lightright')
-            g1.add(lightRight, 'intensity', 0, 1).step(0.01)
-            g1.add(lightRight.position, 'x', -500, 500)
-            g1.add(lightRight.position, 'y', -500, 500)
-            g1.add(lightRight.position, 'z', -500, 500)
-            g1.add(lightRight, 'visible', true, false )
-            var g2 = gui.addFolder('lightLeft')
-            g2.add(lightLeft, 'intensity', 0, 1).step(0.01)
-            g2.add(lightLeft.position, 'x', -500, 500)
-            g2.add(lightLeft.position, 'y', -500, 500)
-            g2.add(lightLeft.position, 'z', -500, 500)
-            g2.add(lightLeft, 'visible', true, false )
-            var g3 = gui.addFolder('Camera')
-            g3.add(this.camera.position, 'x', -500, 500)
-            g3.add(this.camera.position, 'y', -500, 500)
-            g3.add(this.camera.position, 'z', -500, 500)
-            g3.add(this.camera.rotation, 'x', - 1, 1)
-            g3.add(this.camera.rotation, 'y', - Math.PI, Math.PI)
-            g3.add(this.camera.rotation, 'z', - Math.PI, Math.PI)
-
+            if (this.datGui) {
+                var guiL = gui.addFolder('neonLeft')
+                guiL.add(rectLightLeft, 'intensity', 0, 1000)
+                guiL.add(rectLightLeft.position, 'x', -300, 300)
+                guiL.add(rectLightLeft.position, 'y', 0, 300)
+                guiL.add(rectLightLeft.position, 'z', 0, 300)
+                guiL.add(rectLightLeft.rotation, 'x', 0, Math.PI)
+                guiL.add(rectLightLeft.rotation, 'y', 0, Math.PI)
+                guiL.add(rectLightLeft.rotation, 'z', 0, Math.PI)
+                var guiR = gui.addFolder('neonRight')
+                guiR.add(rectLighRight, 'intensity', 0, 1000)
+                guiR.add(rectLighRight.position, 'x', -300, 300)
+                guiR.add(rectLighRight.position, 'y', 0, 300)
+                guiR.add(rectLighRight.position, 'z', 0, 300)
+                guiR.add(rectLighRight.rotation, 'x', 0, Math.PI)
+                guiR.add(rectLighRight.rotation, 'y', 0, Math.PI)
+                guiR.add(rectLighRight.rotation, 'z', 0, Math.PI)
+                var g4 = gui.addFolder('cube position')
+                g4.add(cube.position, 'x', 0, 200)
+                g4.add(cube.position, 'y', 0, 200)
+                g4.add(cube.position, 'z', 0, 200)
+                var g1 = gui.addFolder('lightright')
+                g1.add(lightRight, 'intensity', 0, 1).step(0.01)
+                g1.add(lightRight.position, 'x', -500, 500)
+                g1.add(lightRight.position, 'y', -500, 500)
+                g1.add(lightRight.position, 'z', -500, 500)
+                g1.add(lightRight, 'visible', true, false )
+                var g2 = gui.addFolder('lightLeft')
+                g2.add(lightLeft, 'intensity', 0, 1).step(0.01)
+                g2.add(lightLeft.position, 'x', -500, 500)
+                g2.add(lightLeft.position, 'y', -500, 500)
+                g2.add(lightLeft.position, 'z', -500, 500)
+                g2.add(lightLeft, 'visible', true, false )
+                var g3 = gui.addFolder('Camera')
+                g3.add(this.camera.position, 'x', -500, 500)
+                g3.add(this.camera.position, 'y', -500, 500)
+                g3.add(this.camera.position, 'z', -500, 500)
+                g3.add(this.camera.rotation, 'x', - 1, 1)
+                g3.add(this.camera.rotation, 'y', - Math.PI, Math.PI)
+                g3.add(this.camera.rotation, 'z', - Math.PI, Math.PI)
+            }
 
             // HELPER
-            // var rectLighRightHelper = new THREE.RectAreaLightHelper(rectLighRight)
-            // var rectLightLeftHelper = new THREE.RectAreaLightHelper(rectLightLeft)
-            // lightLeft.shadowCameraHelper = new THREE.CameraHelper(lightLeft.shadow.camera); // - added
-            // lightRight.shadowCameraHelper = new THREE.CameraHelper(lightRight.shadow.camera); // - added
-            // this.scene.add(lightLeft.shadowCameraHelper); // -------- added
-            // this.scene.add(lightRight.shadowCameraHelper); // -------- added
-            // this.scene.add(rectLighRightHelper)
-            // this.scene.add(rectLightLeftHelper)
-            // this.scene.add(new THREE.AxesHelper(300));
-            // this.scene.add(new THREE.SpotLightHelper(lightLeft, 2));
-
+            if (this.helpers) {
+                var rectLighRightHelper = new THREE.RectAreaLightHelper(rectLighRight)
+                var rectLightLeftHelper = new THREE.RectAreaLightHelper(rectLightLeft)
+                lightLeft.shadowCameraHelper = new THREE.CameraHelper(lightLeft.shadow.camera); // - added
+                lightRight.shadowCameraHelper = new THREE.CameraHelper(lightRight.shadow.camera); // - added
+                this.scene.add(lightLeft.shadowCameraHelper); // -------- added
+                this.scene.add(lightRight.shadowCameraHelper); // -------- added
+                this.scene.add(rectLighRightHelper)
+                this.scene.add(rectLightLeftHelper)
+                this.scene.add(new THREE.AxesHelper(300));
+                this.scene.add(new THREE.SpotLightHelper(lightLeft, 2));
+            }
 
             // POST PROCESSING
-            this.postProcessing()
+            if (this.postProcessingActive) {
+                this.postProcessing()
+            }
 
             window.addEventListener('resize', this.onWindowResize, false)
             window.addEventListener('mousemove', this.onMouseMove, false)
@@ -329,6 +593,16 @@ export default {
             var delta = this.clock.getDelta() * this.timeScale
 
             requestAnimationFrame(vue.animate)
+
+            var meter = this.audio.meters.tom.getValue()
+            var meterHats = this.audio.env.hatsADSR.getValueAtTime()
+
+
+            for (var i = 0; i < this.plane.geometry.vertices.length; i++) {
+                var variation = this.plane.geometry.vertices[i].z + meter
+                this.plane.geometry.vertices[i].z = variation
+            }
+            this.plane.geometry.verticesNeedUpdate = true;
 
             // this.shaders.glitch.uniforms['amount'].value = Math.random()
             // this.shaders.glitch.uniforms['angle'].value = Math.random()
@@ -350,9 +624,9 @@ export default {
             if (this.tick < 0) this.tick = 0
 
             if (delta > 0) {
-                this.options.position.x = Math.sin(this.tick * this.spawnerOptions.horizontalSpeed) * 30
-                this.options.position.y = Math.sin(this.tick * this.spawnerOptions.verticalSpeed) * 10
-                this.options.position.z = Math.sin(this.tick * this.spawnerOptions.horizontalSpeed + this.spawnerOptions.verticalSpeed) * 5
+                this.options.position.x = Math.sin(this.tick * this.spawnerOptions.horizontalSpeed) * 30 * Math.sin(meterHats) * 4
+                this.options.position.y = Math.sin(this.tick * this.spawnerOptions.verticalSpeed) * 10 * Math.sin(meterHats) * 4
+                this.options.position.z = Math.sin(this.tick * this.spawnerOptions.horizontalSpeed + this.spawnerOptions.verticalSpeed) * 5 * Math.sin(meterHats) * 4
 
                 for (var i = 0; i < this.spawnerOptions.spawnRate * delta; i++) {
                     this.obj.particleSystem.spawnParticle(this.options)
@@ -386,8 +660,11 @@ export default {
         },
         render: function() {
             var vue = this
-            // this.renderer.render(vue.scene, vue.camera)
-            this.composer.render()
+            if (this.postProcessingActive) {
+                this.composer.render()
+            } else {
+                this.renderer.render(vue.scene, vue.camera)
+            }
         },
         postProcessing: function() {
             //COMPOSER
@@ -423,10 +700,12 @@ export default {
             // dof.renderToScreen = true
 
         },
+
     },
     mounted() {
         this.init()
         this.animate()
+        this.audioSetup()
     }
 }
 </script>
