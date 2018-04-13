@@ -12017,6 +12017,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     name: 'App',
     data: function data() {
         return {
+            gui: new __WEBPACK_IMPORTED_MODULE_3_dat_gui__["a" /* default */].GUI(),
             camera: null,
             colors: {
                 white: 0xf3f3f3,
@@ -12042,7 +12043,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     methods: {
         init: function init() {
             var vue = this;
-            var gui = new __WEBPACK_IMPORTED_MODULE_3_dat_gui__["a" /* default */].GUI();
 
             this.width = window.innerWidth;
             this.height = window.innerHeight;
@@ -12053,21 +12053,33 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             this.renderer.setSize(this.width, this.height);
             document.body.appendChild(this.renderer.domElement);
 
+            //
             // CAMERA
+            //
+
             this.camera = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].PerspectiveCamera(45, this.width / this.height, 1, 10000);
             this.camera.position.set(0, 110, 300);
 
+            //
             // CONTROLS
+            //
+
             this.controls = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].OrbitControls(this.camera);
             this.controls.update();
 
+            //
+            // PARTICLES
+            //
+
+            /* Geometry to morph */
             var boxGeometry = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].BoxGeometry(100, 100, 100);
 
-            // PARTICLES
+            /* Texture */
             this.particlesTexture = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].TextureLoader().load('/images/sprites/sprite02.png');
             this.particlesTexture.minFilter = __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].NearestFilter;
             this.particlesTexture.magFilter = __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].NearestFilter;
 
+            /* Material */
             this.particlesMaterial = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].PointsMaterial({
                 color: 0xff0000,
                 size: 5,
@@ -12076,6 +12088,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 blending: __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].AdditiveBlending
             });
 
+            /* Geometry */
             this.particlesGeometry = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].Geometry();
             var numVerts = 1000;
             var newVerts = __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].GeometryUtilsCustom.randomPointsInGeometry(boxGeometry, numVerts);
@@ -12084,6 +12097,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             }
             this.particles = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].Points(this.particlesGeometry, this.particlesMaterial);
             this.scene.add(this.particles);
+
+            //
+            // RENDER
+            //
 
             this.render();
 

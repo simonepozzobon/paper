@@ -13,6 +13,7 @@ export default {
     name: 'App',
     data: function() {
         return {
+            gui: new dat.GUI(),
             camera: null,
             colors: {
                 white: 0xf3f3f3,
@@ -38,7 +39,6 @@ export default {
     methods: {
         init: function() {
             var vue = this
-            var gui = new dat.GUI()
 
             this.width = window.innerWidth
             this.height = window.innerHeight
@@ -50,21 +50,36 @@ export default {
             document.body.appendChild(this.renderer.domElement)
 
 
+            //
             // CAMERA
+            //
+
             this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 1, 10000)
             this.camera.position.set(0, 110, 300)
 
+
+            //
             // CONTROLS
+            //
+
             this.controls = new THREE.OrbitControls(this.camera)
             this.controls.update()
 
+
+            //
+            // PARTICLES
+            //
+
+            /* Geometry to morph */
             var boxGeometry = new THREE.BoxGeometry(100, 100, 100)
 
-            // PARTICLES
+
+            /* Texture */
             this.particlesTexture = new THREE.TextureLoader().load('/images/sprites/sprite02.png')
             this.particlesTexture.minFilter = THREE.NearestFilter
             this.particlesTexture.magFilter = THREE.NearestFilter
 
+            /* Material */
             this.particlesMaterial = new THREE.PointsMaterial({
                 color: 0xff0000,
                 size: 5,
@@ -73,6 +88,7 @@ export default {
                 blending: THREE.AdditiveBlending,
             })
 
+            /* Geometry */
             this.particlesGeometry = new THREE.Geometry()
             var numVerts = 1000
             var newVerts = THREE.GeometryUtilsCustom.randomPointsInGeometry(boxGeometry, numVerts)
@@ -81,6 +97,11 @@ export default {
             }
             this.particles = new THREE.Points(this.particlesGeometry, this.particlesMaterial)
             this.scene.add(this.particles)
+
+
+            //
+            // RENDER
+            //
 
             this.render()
 
