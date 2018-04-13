@@ -82,263 +82,486 @@ export default {
             variations2: [],
             vectors: [],
             audio: {
-                source: {
-                    fat: new Tone.FatOscillator({
-                        frequency: 50,
-                        type: 'square',
-                    }),
-                    noise: new Tone.Noise({
-                        type: 'white',
-                        playbackRate: .2,
-                    }),
-                    tom: new Tone.MembraneSynth({
-                        pitchDecay : 1.2,
-                        octaves : 3,
-                        oscillator: {
-                            type: 'triangle'
-                        },
-                        envelope: {
-                            attack: 0.24,
-                            decay: 0.46,
-                            sustain: 0.37,
-                            release: 1.37,
-                            attackCurve: 'exponential'
-                        }
-                    }),
-                },
-                env: {
-                    droneVCA: new Tone.AmplitudeEnvelope({
-                        attack: .1,
-                        decay: 2.4,
-                        sustain: 1,
-                        release: 2.4,
-                    }),
-                    hatsADSR: new Tone.AmplitudeEnvelope({
-                        attack: 0.03,
-                        decay: 0.05,
-                        sustain: 0.37,
-                        release: 0.05,
-                    }),
-                },
-                fx: {
-                    autoFilter: null,
-                    filter: new Tone.Filter({
-                        frequency: 150,
-                        type: 'lowpass',
-                        rolloff: -24,
-                        Q: .1,
-                    }),
-                    noiseFilter: new Tone.Filter({
-                        frequency: 150,
-                        type: 'lowpass',
-                        rollof: -24,
-                        Q: .3,
-                    }),
-                    combFilter: new Tone.FeedbackCombFilter({
-                        delayTime: .2,
-                        resonance: .5,
-                    }),
-                    widener: new Tone.StereoWidener(.7),
-                    toMono: new Tone.Mono(),
-                    reverb: new Tone.Reverb({
-                        decay: 2.5,
-                        preDelay: 0.01,
-                        wet: 0.2
-                    })
-                },
-                meters: {
-                    tom: new Tone.Meter(),
-                    hats: new Tone.Meter(),
-                }
+
             },
+            scale: ['C', 'D', 'Eb', 'F', 'Gb', 'Ab', 'A', 'B', 'C'],
         }
     },
     methods: {
         audioSetup: function() {
-            var fat = this.audio.source.fat
-            var noise = this.audio.source.noise
-            var tom = this.audio.source.tom
-            var env = this.audio.env.droneVCA
-            var filter = this.audio.fx.filter
-            var noiseFilter = this.audio.fx.noiseFilter
-            var combFilter = this.audio.fx.combFilter
-            var reverb = this.audio.fx.reverb
+            var samplerLoaded = false,
+                reverbLoaded = false,
+                pianoReverbLoaded = false,
+                snareLoaded = false,
+                snareReverbLoaded = false,
+                closedHatsLoaded = false,
+                leadReverbLoaded = false
 
+            // POLYSYNTH
 
-            // START and generate Reverb impulse
-            reverb.generate().then(function(response) {
-                Tone.Transport.bpm.value = 125
-                Tone.Transport.start()
-            }).catch(errors => {
-                console.log(errors)
-            })
+            var polySynth1 = new Tone.FatOscillator({
+                type: 'square',
+                count: 3
+            }).start()
 
+            var polySynth2 = new Tone.FatOscillator({
+                type: 'sawtooth',
+                count: 3
+            }).start()
 
-            // TOM
-            var tomFilter = new Tone.Filter({
-                frequency: 550,
-                Q: 0.7,
-            })
+            var polySynth3 = new Tone.FatOscillator({
+                type: 'sawtooth',
+                count: 3
+            }).start()
 
-            // TOM SUB FREQ
-            var tomSub = new Tone.OmniOscillator({
-                frequency: 440,
-                detune: .5,
-                type: 'pwm'
-            })
+            var polySynth4 = new Tone.FatOscillator({
+                type: 'square',
+                count: 3
+            }).start()
 
-            var tomSubADSR = new Tone.AmplitudeEnvelope({
-                attack: 0.03,
-                decay: 0.05,
-                sustain: 0.37,
-                release: 0.05,
-            })
+            var polySynth5 = new Tone.FatOscillator({
+                type: 'square',
+                spread: 20,
+                count: 3,
+                volume: -9,
+            }).start()
 
-            var tomSubFilter = new Tone.Filter({
-                frequency: 141,
-                rolloff: -96,
-                Q: 0.1,
-                gain: 0.1,
-                type: 'bandpass'
-            })
-
-
-            // HATS
-            var hats = new Tone.Noise({
+            var whiteNoise = new Tone.Noise({
                 type: 'white'
+            }).start()
+
+            polySynth2.sync(polySynth1)
+            polySynth3.sync(polySynth1)
+            polySynth4.sync(polySynth1)
+            polySynth5.sync(polySynth1)
+
+            var polySynthVibrato = new Tone.Vibrato({
+                frequency: 10,
+                type: 'sine',
+                depth: 0.2,
             })
 
-            var hatsADSR = this.audio.env.hatsADSR
-
-            // EFX - REVERB ADSR
-            var reverbADSR = new Tone.AmplitudeEnvelope({
-                attack: 0.03,
-                decay: 0.05,
-                sustain: 0.37,
-                release: 0.05,
+            var polySynthADSR = new Tone.AmplitudeEnvelope({
+                attack: 1,
+                decay: 0.5,
+                sustain: 1,
+                release: 0.5,
             })
 
+            var cutLowEnd = new Tone.Filter({
+                frequency: 90,
+                type: 'highpass',
+                rolloff: -48,
+                Q: 0.3,
+            })
 
-            // EFX - CHORUS
-            var chorus = new Tone.Chorus({
-                frequency: 4,
-                delayTime: 36,
-                depth: 0.7,
+            var smoothHighEnd = new Tone.Filter({
+                frequency: 220,
+                type: 'lowpass',
+                rolloff: -12,
+                Q: 0.3,
+            })
+
+            var autoFilter = new Tone.AutoFilter({
+                frequency: '3m',
                 type: 'triangle',
-                spread: 90,
+                depth: .73,
+                baseFrequency: 360,
+                octaves: 1.6,
+                filter: {
+                    Q: 1.2,
+                    rolloff: -24,
+                }
+            }).start()
+
+            var widener = new Tone.StereoWidener({
+                width: 0.7
+            })
+
+            var polySynthReverb = new Tone.Reverb({
+                decay: 2.4,
+                wet: .6,
+            })
+
+            var polySynthPingPong = new Tone.PingPongDelay({
+                delayTime: '1m',
+                feedback: .33,
+                wet: 0.15
             })
 
 
-            // EFX - PING PONG DELAY
-            var pingPong = new Tone.PingPongDelay('16n', 0.2)
-            pingPong.wet.value = .16
+            // PIANO
+
+            var pianoSampler = new Tone.Sampler({
+                'c3' : '/samples/reverse-DM7add9-Chord.mp3'
+            }, function() {
+                samplerLoaded = true
+                startTransport()
+            })
+
+            var pianoPingPong = new Tone.PingPongDelay({
+                delayTime: '2n',
+                feedback: .66,
+                wet: .15,
+            })
+
+            var pianoReverb = new Tone.Reverb({
+                decay: 12,
+                wet: .6,
+            })
 
 
-            // VOLUME MIXER
-            var bassVol = new Tone.Volume(-6)
-            var sequenceVol = new Tone.Volume(-9)
-            var hatsVol = new Tone.Volume(-28)
-            var limiter = new Tone.Limiter(-3)
+            // KICK
 
-            fat.start().connect(filter)
-            filter.connect(combFilter)
-            combFilter.connect(bassVol)
+            var kick = new Tone.MembraneSynth({
+                envelope: {
+                    sustain: 0,
+                    attack: 0.02,
+                    decay: 0.8,
+                },
+                octaves: 6
+            })
 
-            noise.start().connect(noiseFilter)
-            noiseFilter.connect(sequenceVol)
 
-            tom.connect(tomFilter)
-            tomFilter.connect(chorus)
-            chorus.connect(reverb)
-            reverb.connect(reverbADSR)
-            reverbADSR.connect(pingPong)
-            pingPong.connect(sequenceVol).connect(this.audio.meters.tom)
+            // SNARE && HATS
 
-            tomSub.start().connect(tomSubFilter)
-            tomSubFilter.connect(tomSubADSR)
-            tomSubADSR.connect(reverb)
+            var snareSynth = new Tone.Sampler({
+                'C3': '/samples/snare.mp3',
+            }, function() {
+                snareLoaded = true
+                startTransport()
+            })
 
-            hats.start().connect(hatsADSR)
-            hatsADSR.connect(this.audio.meters.hats).connect(hatsVol)
+            var snareReverb = new Tone.Reverb({
+                decay: 1.2,
+                wet: .33
+            })
 
-            // bassVol.connect(limiter)
-            // sequenceVol.connect(limiter)
-            hatsVol.connect(limiter)
+            var closedHats = new Tone.Sampler({
+                'C3': '/samples/hats.mp3'
+            }, function() {
+                closedHatsLoaded = true
+                startTransport()
+            })
+
+            var closedHatsHuman = new Tone.Volume(0)
+
+            var closedHatsADSR = new Tone.AmplitudeEnvelope({
+                attack: 0.01,
+                decay: 0.4,
+                sustain: 0,
+                release: 0.0001,
+            })
+
+            var closedHatsFilter = new Tone.Filter({
+                type: 'highpass',
+                rolloff: -12,
+                frequency: 2000,
+                Q: 0.6
+            })
+
+            var closedHatsReverb = new Tone.Freeverb({
+                roomSize: 1.6,
+                dampening: 1000,
+                wet: 0.66
+            })
+
+            var closedHatsWidener = new Tone.StereoWidener({
+                width: 0.8,
+                wet: 0.7,
+            })
+
+
+            // DRUMS PARALLEL COMPRESSION
+            var drumsAux = new Tone.Volume(0)
+
+            var bitCrusher = new Tone.BitCrusher({
+                bits: 8
+            })
+
+            var drumsCompressor = new Tone.Compressor({
+                ratio: 20,
+                threshold: -12,
+                attack: .8,
+                release: 0.05,
+                knee: 10,
+            })
+
+            var compressorGain = new Tone.Volume(-18)
+
+
+            // LEAD
+
+            var lead = new Tone.FMSynth({
+                envelope: {
+                    attack: 1,
+                    sustain: 1,
+                    release: 1
+                }
+            })
+
+            var leadFilter = new Tone.Filter({
+                frequency: 800,
+                rolloff: -12
+            })
+
+            var leadReverb = new Tone.Reverb({
+                decay: 2.4,
+                wet: 0.66
+            })
+
+            var leadPingPong = new Tone.PingPongDelay({
+                delayTime: '8n',
+                feedback: .66,
+                wet: 0.25
+            })
+
+
+            // LEAD OVERTONE
+
+            var leadOvertone1 = new Tone.FMSynth()
+            var leadOvertone2 = new Tone.PolySynth()
+
+
+            // VOLUMES
+            var polySynthVol = new Tone.Volume(-16)
+            var noiseVol = new Tone.Volume(-22)
+            var pianoVol = new Tone.Volume(0)
+            var kickVol = new Tone.Volume(0)
+            var snareVol = new Tone.Volume(-6)
+            var closedHatVol = new Tone.Volume(-12)
+            var leadVol = new Tone.Volume(-21)
+            var leadOvertone1Vol = new Tone.Volume(-9)
+            var leadOvertone2Vol = new Tone.Volume(-15)
+
+            // AUX
+            var drumsAuxVol = new Tone.Volume(-9)
+
+            // MASTER CHANNEL
+            var limiter = new Tone.Limiter(-0.01)
+
+            // ROUTING
+            // Sources
+            polySynth1.connect(polySynthADSR)
+            polySynth2.connect(polySynthADSR)
+            polySynth3.connect(polySynthADSR)
+            polySynth4.connect(polySynthADSR)
+            polySynth5.connect(polySynthVibrato)
+
+            polySynthVibrato.connect(polySynthADSR)
+
+            whiteNoise.connect(noiseVol)
+            noiseVol.connect(polySynthADSR)
+
+            polySynthADSR.connect(autoFilter)
+            autoFilter.connect(cutLowEnd)
+            cutLowEnd.connect(polySynthReverb)
+            polySynthReverb.connect(polySynthPingPong)
+            polySynthPingPong.connect(smoothHighEnd)
+            smoothHighEnd.connect(widener)
+            widener.connect(polySynthVol)
+            polySynthVol.connect(limiter)
+
+            pianoSampler.connect(pianoPingPong)
+            pianoPingPong.connect(pianoReverb)
+            pianoReverb.connect(pianoVol)
+            pianoVol.connect(limiter)
+
+            kick.connect(kickVol)
+            kickVol.connect(limiter)
+
+            snareSynth.connect(snareReverb)
+            snareReverb.connect(snareVol)
+            snareVol.connect(limiter)
+
+            closedHats.connect(closedHatsHuman)
+            closedHatsHuman.connect(closedHatsADSR)
+            closedHatsADSR.connect(closedHatsFilter)
+            // closedHats.connect(closedHatsFilter)
+            closedHatsFilter.connect(closedHatsReverb)
+            closedHatsReverb.connect(closedHatsWidener)
+            closedHatsWidener.connect(closedHatVol)
+            closedHatVol.connect(limiter)
+
+            snareReverb.connect(drumsAux)
+            kick.connect(drumsAux)
+            closedHats.connect(drumsAux)
+            // drumsAux.connect(drumsCompressor)
+            drumsAux.connect(bitCrusher)
+            bitCrusher.connect(drumsCompressor)
+            drumsCompressor.connect(compressorGain)
+            compressorGain.connect(drumsAuxVol)
+            drumsAuxVol.connect(limiter)
+
+            lead.connect(leadFilter)
+            leadFilter.connect(leadPingPong)
+            leadPingPong.connect(leadReverb)
+            leadReverb.connect(leadVol)
+            leadVol.connect(limiter)
+
+            leadOvertone1.connect(leadOvertone1Vol)
+            leadOvertone1Vol.connect(leadReverb)
+
+            leadOvertone2.connect(leadOvertone2Vol)
+            leadOvertone2Vol.connect(leadPingPong)
+
             limiter.toMaster()
 
-            var bassSeq = new Tone.Sequence(function(time, note){
-                fat.frequency.value = note
+            var chordDM7add9 = ['D3', 'E3', 'F#3', 'A3', 'C#3']
+            var chordAbM7add9 = ['F#3', 'G#3', 'A#3', 'C#4', 'F4']
+            var chordDbM7add9 = ['C#3', 'D#3', 'E3', 'G#3', 'B3']
+            var chordAM7add9 = ['A#3', 'C3', 'D3', 'F4', 'A4']
 
-            }, ["A1", "B1", "A#2", null, 'A1', 'B1', 'A#2'], "2n")
+            var chordPart = new Tone.Part(function(time, note){
+                polySynth1.frequency.value = note[0]
+                polySynth2.frequency.value = note[1]
+                polySynth3.frequency.value = note[2]
+                polySynth4.frequency.value = note[3]
+                polySynth5.frequency.value = note[4]
 
-            var arpSeq = new Tone.Sequence(function(time, note){
-                var lower = new Tone.Frequency(note).transpose(-12)
+                polySynthADSR.triggerAttackRelease('3m', time)
+            }, [[0, chordDM7add9], ['1:0', chordAbM7add9]])
 
-                tomSub.frequency.value = lower
-                tom.triggerAttackRelease(note, '8n')
+            var pianoReverse = new Tone.Part(function(time, note) {
+                pianoSampler.triggerAttack(note)
+            }, [[0, 'C3']])
 
-                tomSubADSR.triggerAttackRelease({
-                    duration: .5,
-                    velocity: 0.7
-                })
+            var vue = this
+            var kickSeq = new Tone.Sequence(function(time, step) {
+                closedHatsHuman.volume.value = (Math.random() - 1) * 3
+                closedHatsADSR.triggerAttackRelease('16n', time)
+                closedHats.triggerAttack('C3')
 
-                reverbADSR.triggerAttackRelease({
-                    duration: 1,
-                    velocity: 1,
-                })
-            }, ['A1', 'B2', 'A#3', 'A2'], '8n')
+                if (step == 0 || step == 8 || step == 14) {
+                    kick.triggerAttackRelease('D1', '8n', time)
+                    vue.moveLand()
+                }
+                if (step == 4 || step == 16) {
+                    snareSynth.triggerAttack('C3')
+                }
+            }, [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], '16n')
 
-            var hatsSeq = new Tone.Sequence(function(time, note) {
-                hatsADSR.triggerAttackRelease(note, '16n')
+            var leadSeq = new Tone.Sequence(function(time, note) {
+                lead.triggerAttack(note)
+            }, ['F#4', 'A4', 'C#4'], '8n')
 
-            }, ['A3'], '16n')
+            var leadOvertone1Seq = new Tone.Sequence(function(time, note) {
+                leadOvertone1.triggerAttackRelease(note, '32n')
+                var transpose = new Tone.Midi(note).transpose(+12)
+                leadOvertone2.triggerAttackRelease(transpose, '32n')
+            }, ['F#5', 'A5', 'C#5', 'F#5', 'E5'], '16n')
 
-            bassSeq.start()
-            arpSeq.start()
-            hatsSeq.start()
+            var leadOvertone2Seq = new Tone.Sequence(function(time, note) {
+                leadOvertone2.triggerAttackRelease(note, '32n')
+            }, ['F#5', 'A5', 'C#5', 'F#5', 'E5', 'A5', 'C#5'], '16n')
 
-            fat.sync()
-            hats.sync()
-            tomSub.sync()
+            chordPart.loop = true
+            chordPart.loopEnd = '2m'
+            chordPart.humanize = true
+            pianoReverse.loop = true
+            pianoReverse.loopEnd = '8m'
+            pianoReverse.humanize = true
 
-            // GUI
+            polySynthReverb.generate().then(function() {
+                reverbLoaded = true
+                startTransport()
+            })
+
+            pianoReverb.generate().then(function() {
+                pianoReverbLoaded = true
+                startTransport()
+            })
+
+            snareReverb.generate().then(function() {
+                snareReverbLoaded = true
+                startTransport()
+            })
+
+            leadReverb.generate().then(function() {
+                leadReverbLoaded = true
+                startTransport()
+            })
+
+            Tone.context.latencyHint = 'playback'
+
+            function startTransport() {
+                if (reverbLoaded && samplerLoaded && pianoReverbLoaded && snareLoaded && snareReverbLoaded && closedHatsLoaded && leadReverbLoaded) {
+                    Tone.Transport.start('+0.1')
+                    chordPart.start()
+                    pianoReverse.start()
+                    kickSeq.start()
+                    leadSeq.start()
+                    leadOvertone1Seq.start()
+                    leadOvertone2Seq.start()
+                }
+            }
+
+
+            // this.audioDatGui(autoFilter, polySynthReverb, widener, polySynthVol, noiseVol)
+
+        },
+        audioDatGui: function(autoFilter, polySynthReverb, widener, polySynthVol, noiseVol) {
             var gui = new dat.GUI()
-            var g1 = gui.addFolder('Sound')
-            g1.add(tom, 'pitchDecay', 0, 1).step(0.05)
-            g1.add(tom, 'octaves', 0, 12).step(1)
-            g1.add(tom.envelope, 'attack', 0, 1).step(0.01)
-            g1.add(tom.envelope, 'decay', 0, 5).step(0.01)
-            g1.add(tom.envelope, 'sustain', 0, 1).step(0.01)
-            g1.add(tom.envelope, 'release', 0, 5).step(0.01)
 
-            var g4 = gui.addFolder('Tom Sub Osc')
-            g4.add(tomSubFilter.frequency, 'value', 0, 2000).step(1)
-            g4.add(tomSubFilter.Q, 'value', 0, 2).step(0.01)
-            g4.add(tomSubFilter.gain, 'value', 0, 1).step(0.01)
-            g4.add(tomSubADSR, 'attack', 0, 1).step(0.01)
-            g4.add(tomSubADSR, 'decay', 0, 1).step(0.01)
-            g4.add(tomSubADSR, 'sustain', 0, 1).step(0.01)
-            g4.add(tomSubADSR, 'release', 0, 1).step(0.01)
+            var polySynthOpts = {
+                polySynthVol: polySynthVol.volume.value,
+                noiseVol: noiseVol.volume.value,
 
-            var g5 = gui.addFolder('Hats')
-            g5.add(hatsVol.volume, 'value', -64, 0).step(1)
-            g5.add(hatsADSR, 'attack', 0, 1).step(0.01)
-            g5.add(hatsADSR, 'decay', 0, 1).step(0.01)
-            g5.add(hatsADSR, 'sustain', 0, 1).step(0.01)
-            g5.add(hatsADSR, 'release', 0, 1).step(0.01)
+                autofilter: {
+                    frequency: autoFilter.frequency.value,
+                    depth: autoFilter.depth.value,
+                    baseFrequency: autoFilter.baseFrequency,
+                    octaves: autoFilter.octaves,
+                    q: autoFilter.filter.Q.value,
+                },
 
-            var g2 = gui.addFolder('Reverb Envelope')
-            g2.add(reverb.wet, 'value', 0, 1).step(0.01)
-            g2.add(reverbADSR, 'attack', 0, 1).step(0.01)
-            g2.add(reverbADSR, 'decay', 0, 1).step(0.01)
-            g2.add(reverbADSR, 'sustain', 0, 1).step(0.01)
-            g2.add(reverbADSR, 'release', 0, 1).step(0.01)
+                efx: {
+                    widener: widener.width.value,
+                    reverb: {
+                        Reverb_wet: polySynthReverb.wet.value,
+                        Reverb_decay: polySynthReverb.decay
+                    }
+                }
+            }
 
-            var g3 = gui.addFolder('Chorus')
-            g3.add(chorus.frequency, 'value', 0, 2000)
-            g3.add(chorus, 'delayTime', 0, 500)
-            g3.add(chorus, 'depth', 0, 1).step(0.1)
-            g3.add(chorus, 'spread', 0, 360)
+            var updatePolySynth = function() {
+                // Volumes
+                polySynthVol.volume.value = polySynthOpts.polySynthVol
+                noiseVol.volume.value = polySynthOpts.noiseVol
+
+                // Autofilter
+                autoFilter.frequency.value = polySynthOpts.autofilter.frequency
+                autoFilter.baseFrequency = polySynthOpts.autofilter.baseFrequency
+                autoFilter.depth.value = polySynthOpts.autofilter.depth
+                autoFilter.octaves = polySynthOpts.autofilter.octaves
+                autoFilter.filter.Q.value = polySynthOpts.autofilter.q
+
+                // Efx
+                widener.width.value = polySynthOpts.efx.widener
+                polySynthReverb.wet.value = polySynthOpts.efx.reverb.Reverb_wet
+                polySynthReverb.decay = polySynthOpts.efx.reverb.Reverb_decay
+            }
+
+            var g1 = gui.addFolder('PolySynth')
+
+            var g1_1 = g1.addFolder('Volumes')
+            g1_1.add(polySynthOpts, 'polySynthVol', -64, 0).onChange(updatePolySynth)
+            g1_1.add(polySynthOpts, 'noiseVol', -64, 0).onChange(updatePolySynth)
+
+            var g1_2 = g1.addFolder('AutoFilter')
+            g1_2.add(polySynthOpts.autofilter, 'frequency', 0, 30).onChange(updatePolySynth)
+            g1_2.add(polySynthOpts.autofilter, 'baseFrequency', 20, 20000).step(10).onChange(updatePolySynth)
+            g1_2.add(polySynthOpts.autofilter, 'depth', 0, 1).step(0.01).onChange(updatePolySynth)
+            g1_2.add(polySynthOpts.autofilter, 'octaves', 0, 10).step(0.1).onChange(updatePolySynth)
+            g1_2.add(polySynthOpts.autofilter, 'q', 0, 10).step(0.1).onChange(updatePolySynth)
+
+            var g1_3 = g1.addFolder('Efx')
+            g1_3.add(polySynthOpts.efx, 'widener', 0, 1).onChange(updatePolySynth)
+            g1_3.add(polySynthOpts.efx.reverb, 'Reverb_wet', 0, 1).onChange(updatePolySynth)
+            g1_3.add(polySynthOpts.efx.reverb, 'Reverb_decay', 0, 5, 0.1).onChange(updatePolySynth)
+
+        },
+        moveLand: function() {
 
         },
         init: function() {
@@ -353,7 +576,7 @@ export default {
             // crea la scena
             this.scene = new THREE.Scene()
             this.scene.background = new THREE.Color(this.colors.black)
-            this.scene.fog = new THREE.FogExp2(this.colors.black, 0.0015, 1000)
+            this.scene.fog = new THREE.FogExp2(this.colors.black, 0.002, 1000)
 
 
             // renderer setup
@@ -594,15 +817,15 @@ export default {
 
             requestAnimationFrame(vue.animate)
 
-            var meter = this.audio.meters.tom.getValue()
-            var meterHats = this.audio.env.hatsADSR.getValueAtTime()
-
-
-            for (var i = 0; i < this.plane.geometry.vertices.length; i++) {
-                var variation = this.plane.geometry.vertices[i].z + meter
-                this.plane.geometry.vertices[i].z = variation
-            }
-            this.plane.geometry.verticesNeedUpdate = true;
+            // var meter = this.audio.meters.tom.getValue()
+            // var meterHats = this.audio.env.hatsADSR.getValueAtTime()
+            //
+            //
+            // for (var i = 0; i < this.plane.geometry.vertices.length; i++) {
+            //     var variation = this.plane.geometry.vertices[i].z + meter
+            //     this.plane.geometry.vertices[i].z = variation
+            // }
+            // this.plane.geometry.verticesNeedUpdate = true;
 
             // this.shaders.glitch.uniforms['amount'].value = Math.random()
             // this.shaders.glitch.uniforms['angle'].value = Math.random()
@@ -620,20 +843,20 @@ export default {
             // this.shaders.film.uniforms['sIntensity'].value = Math.random()
             // this.shaders.film.uniforms.nIntensity.value = Math.random() / 10
 
-            this.tick += delta
-            if (this.tick < 0) this.tick = 0
-
-            if (delta > 0) {
-                this.options.position.x = Math.sin(this.tick * this.spawnerOptions.horizontalSpeed) * 30 * Math.sin(meterHats) * 4
-                this.options.position.y = Math.sin(this.tick * this.spawnerOptions.verticalSpeed) * 10 * Math.sin(meterHats) * 4
-                this.options.position.z = Math.sin(this.tick * this.spawnerOptions.horizontalSpeed + this.spawnerOptions.verticalSpeed) * 5 * Math.sin(meterHats) * 4
-
-                for (var i = 0; i < this.spawnerOptions.spawnRate * delta; i++) {
-                    this.obj.particleSystem.spawnParticle(this.options)
-                }
-            }
-            // this.obj.particleSystem.dispose(new THREE.Vector3(0, 100, 0))
-            this.obj.particleSystem.update(this.tick)
+            // this.tick += delta
+            // if (this.tick < 0) this.tick = 0
+            //
+            // if (delta > 0) {
+            //     this.options.position.x = Math.sin(this.tick * this.spawnerOptions.horizontalSpeed) * 30 * Math.sin(meterHats) * 4
+            //     this.options.position.y = Math.sin(this.tick * this.spawnerOptions.verticalSpeed) * 10 * Math.sin(meterHats) * 4
+            //     this.options.position.z = Math.sin(this.tick * this.spawnerOptions.horizontalSpeed + this.spawnerOptions.verticalSpeed) * 5 * Math.sin(meterHats) * 4
+            //
+            //     for (var i = 0; i < this.spawnerOptions.spawnRate * delta; i++) {
+            //         this.obj.particleSystem.spawnParticle(this.options)
+            //     }
+            // }
+            // // this.obj.particleSystem.dispose(new THREE.Vector3(0, 100, 0))
+            // this.obj.particleSystem.update(this.tick)
 
             // this.controls.update()
             this.render()
