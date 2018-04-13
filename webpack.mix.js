@@ -3,6 +3,17 @@ const glob = require('glob');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const PurifyCSSPlugin = require('purifycss-webpack');
 
+const whs_alias = require('whs/tools/alias');
+const mine_alias = {
+    'images' : path.resolve(__dirname, 'src/images/ready'),
+    'styles' : path.resolve(__dirname, 'src/sass'),
+    'scripts': path.resolve(__dirname, 'src/js'),
+    'commons': path.resolve(__dirname, 'src/js/components/commons'),
+    'npm': path.resolve(__dirname, 'node_modules'),
+}
+
+const alias = Object.assign(mine_alias, whs_alias)
+
 /*
  |--------------------------------------------------------------------------
  | Mix Asset Management
@@ -38,13 +49,7 @@ mix
     })
     .webpackConfig({
         resolve: {
-            alias: {
-                'images' : path.resolve(__dirname, 'src/images/ready'),
-                'styles' : path.resolve(__dirname, 'src/sass'),
-                'scripts': path.resolve(__dirname, 'src/js'),
-                'commons': path.resolve(__dirname, 'src/js/components/commons'),
-                'npm': path.resolve(__dirname, 'node_modules'),
-            }
+            alias: alias
         },
     })
     .options({

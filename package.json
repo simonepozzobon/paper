@@ -31,14 +31,17 @@
         "webpack": "^3.0.0"
     },
     "dependencies": {
+        "ajv-keywords": "^3.1.0",
         "babel-polyfill": "^6.26.0",
         "dat.gui": "^0.7.1",
         "glslify": "^6.1.1",
         "normalize-scss": "^7.0.1",
         "normalize.css": "^8.0.0",
         "paper": "^0.11.5",
+        "physics-module-ammonext": "github:WhitestormJS/physics-module-ammonext#master",
         "scrollmonitor": "^1.2.4",
         "three": "^0.91.0",
-        "tone": "^13.0.1"
+        "tone": "^13.0.1",
+        "whs": "^2.1.9"
     }
 }
