@@ -26,10 +26,14 @@ require('three/examples/js/postprocessing/ShaderPass')
 require('three/examples/js/postprocessing/MaskPass')
 
 require('three/examples/js/utils/ShadowMapViewer')
+require('three/examples/js/utils/GeometryUtils')
+
 require('three/examples/js/GPUParticleSystem')
 
 require('three/examples/js/renderers/Projector')
 require('three/examples/js/renderers/CanvasRenderer')
+
+
 
 require('./shaders/GlowShader')
 export default THREE

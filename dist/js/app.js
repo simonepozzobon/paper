@@ -87,7 +87,7 @@ function toComment(sourceMap) {
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(4);
-module.exports = __webpack_require__(52);
+module.exports = __webpack_require__(53);
 
 
 /***/ }),
@@ -100,7 +100,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__App_vue__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__App_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__App_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_normalize_css__ = __webpack_require__(48);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_normalize_css__ = __webpack_require__(49);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_normalize_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_normalize_css__);
 
 
@@ -11543,7 +11543,7 @@ var normalizeComponent = __webpack_require__(14)
 /* script */
 var __vue_script__ = __webpack_require__(15)
 /* template */
-var __vue_template__ = __webpack_require__(47)
+var __vue_template__ = __webpack_require__(48)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -11613,10 +11613,10 @@ if(false) {
 
 exports = module.exports = __webpack_require__(1)(false);
 // imports
-exports.push([module.i, "@import url(https://fonts.googleapis.com/css?family=Oswald);", ""]);
+
 
 // module
-exports.push([module.i, "\n#app {\n  width: 0;\n  height: 0;\n  font-family: \"Oswald\", sans-serif;\n}\n#app > #call-to-action {\n    position: absolute;\n    left: 50%;\n    bottom: 20%;\n    -webkit-transform: translateX(-50%);\n            transform: translateX(-50%);\n    color: #252525;\n    text-transform: uppercase;\n    letter-spacing: 5px;\n    font-size: 1.25rem;\n}\n#app > #call-to-action > a.btn {\n      background-color: #ccc;\n      padding: 1rem 2rem;\n      border-radius: 3px;\n      -webkit-transition: all .4s;\n      transition: all .4s;\n}\n#app > #call-to-action > a.btn:visited, #app > #call-to-action > a.btn:active, #app > #call-to-action > a.btn:link {\n        color: #252525;\n        text-decoration: none;\n        -webkit-transition: all .4s;\n        transition: all .4s;\n}\n#app > #call-to-action > a.btn:hover {\n        background-color: #191919;\n        color: #f3f3f3;\n        border: 3px solid #252525;\n        -webkit-transition: all .4s;\n        transition: all .4s;\n}\n", ""]);
+exports.push([module.i, "", ""]);
 
 // exports
 
@@ -11998,13 +11998,10 @@ module.exports = function normalizeComponent (
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__three_setup__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__three_perlin__ = __webpack_require__(44);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_tone__ = __webpack_require__(45);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__three_perlin__ = __webpack_require__(45);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_tone__ = __webpack_require__(46);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_tone___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_tone__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_dat_gui__ = __webpack_require__(46);
-//
-//
-//
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_dat_gui__ = __webpack_require__(47);
 //
 //
 //
@@ -12015,899 +12012,111 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
-var lightShadowMapViewer, light, spheres;
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'App',
     data: function data() {
         return {
-            amount: {
-                spheres: 500,
-                trees: 1500
-            },
-
             camera: null,
-            clock: new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].Clock(),
             colors: {
-                white: 0xffffff,
-                black: 0x191919,
-                gray: 0xcccccc,
-                yellow: 0xF5A623,
-                purple: 0xff00ff,
-                red: 0xff0000
+                white: 0xf3f3f3,
+                black: 0x191919
             },
-            composer: null,
-            composerScene: null,
             controls: null,
-            datGui: false,
-            film: null,
-            geometry: null,
-            glitch: null,
-            gui: null,
-            helpers: false,
-            material: null,
-            mesh: null,
-            obj: {
-                particleSystem: null
-            },
+            clock: new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].Clock(),
+            scene: new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].Scene(),
+            particles: null,
+            particlesGeometry: null,
+            particlesMaterial: null,
+            particlestexture: null,
+            renderer: new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].WebGLRenderer({
+                antialias: true
+            }),
+            width: 0,
+            height: 0,
             options: {},
-            particles: [],
-            particlesInitialized: false,
-            particlesCount: 0,
-            plane: null,
-            postProcessingActive: false,
-            renderer: null,
-            renderScene: null,
-            scene: null,
-            size: {
-                width: 0,
-                height: 0
-            },
-            shaders: {
-                film: null,
-                glitch: null,
-                mainRender: null,
-                vignette: null,
-                hBlur: null,
-                vBlur: null
-            },
-            spawnerOptions: {
-                spawnRate: 15000,
-                horizontalSpeed: 1.5,
-                verticalSpeed: 1.33,
-                timeScale: 1
-            },
-            spheres: [],
-            tick: 0,
-            timer: 0,
-            timeScale: 1,
-            triangles: [],
-            variations: [],
-            variations2: [],
-            vectors: [],
-            audio: {},
-            scale: ['C', 'D', 'Eb', 'F', 'Gb', 'Ab', 'A', 'B', 'C']
+            spawnerOptions: {},
+            tick: 0
         };
     },
     methods: {
-        audioSetup: function audioSetup() {
-            var samplerLoaded = false,
-                reverbLoaded = false,
-                pianoReverbLoaded = false,
-                snareLoaded = false,
-                snareReverbLoaded = false,
-                closedHatsLoaded = false,
-                leadReverbLoaded = false;
-
-            // POLYSYNTH
-
-            var polySynth1 = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.FatOscillator({
-                type: 'square',
-                count: 3
-            }).start();
-
-            var polySynth2 = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.FatOscillator({
-                type: 'sawtooth',
-                count: 3
-            }).start();
-
-            var polySynth3 = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.FatOscillator({
-                type: 'sawtooth',
-                count: 3
-            }).start();
-
-            var polySynth4 = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.FatOscillator({
-                type: 'square',
-                count: 3
-            }).start();
-
-            var polySynth5 = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.FatOscillator({
-                type: 'square',
-                spread: 20,
-                count: 3,
-                volume: -9
-            }).start();
-
-            var whiteNoise = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Noise({
-                type: 'white'
-            }).start();
-
-            polySynth2.sync(polySynth1);
-            polySynth3.sync(polySynth1);
-            polySynth4.sync(polySynth1);
-            polySynth5.sync(polySynth1);
-
-            var polySynthVibrato = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Vibrato({
-                frequency: 10,
-                type: 'sine',
-                depth: 0.2
-            });
-
-            var polySynthADSR = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.AmplitudeEnvelope({
-                attack: 1,
-                decay: 0.5,
-                sustain: 1,
-                release: 0.5
-            });
-
-            var cutLowEnd = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Filter({
-                frequency: 90,
-                type: 'highpass',
-                rolloff: -48,
-                Q: 0.3
-            });
-
-            var smoothHighEnd = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Filter({
-                frequency: 220,
-                type: 'lowpass',
-                rolloff: -12,
-                Q: 0.3
-            });
-
-            var autoFilter = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.AutoFilter({
-                frequency: '3m',
-                type: 'triangle',
-                depth: .73,
-                baseFrequency: 360,
-                octaves: 1.6,
-                filter: {
-                    Q: 1.2,
-                    rolloff: -24
-                }
-            }).start();
-
-            var widener = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.StereoWidener({
-                width: 0.7
-            });
-
-            var polySynthReverb = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Reverb({
-                decay: 2.4,
-                wet: .6
-            });
-
-            var polySynthPingPong = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.PingPongDelay({
-                delayTime: '1m',
-                feedback: .33,
-                wet: 0.15
-            });
-
-            // PIANO
-
-            var pianoSampler = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Sampler({
-                'c3': '/samples/reverse-DM7add9-Chord.mp3'
-            }, function () {
-                samplerLoaded = true;
-                startTransport();
-            });
-
-            var pianoPingPong = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.PingPongDelay({
-                delayTime: '2n',
-                feedback: .66,
-                wet: .15
-            });
-
-            var pianoReverb = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Reverb({
-                decay: 12,
-                wet: .6
-            });
-
-            // KICK
-
-            var kick = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.MembraneSynth({
-                envelope: {
-                    sustain: 0,
-                    attack: 0.02,
-                    decay: 0.8
-                },
-                octaves: 6
-            });
-
-            // SNARE && HATS
-
-            var snareSynth = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Sampler({
-                'C3': '/samples/snare.mp3'
-            }, function () {
-                snareLoaded = true;
-                startTransport();
-            });
-
-            var snareReverb = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Reverb({
-                decay: 1.2,
-                wet: .33
-            });
-
-            var closedHats = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Sampler({
-                'C3': '/samples/hats.mp3'
-            }, function () {
-                closedHatsLoaded = true;
-                startTransport();
-            });
-
-            var closedHatsHuman = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Volume(0);
-
-            var closedHatsADSR = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.AmplitudeEnvelope({
-                attack: 0.01,
-                decay: 0.4,
-                sustain: 0,
-                release: 0.0001
-            });
-
-            var closedHatsFilter = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Filter({
-                type: 'highpass',
-                rolloff: -12,
-                frequency: 2000,
-                Q: 0.6
-            });
-
-            var closedHatsReverb = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Freeverb({
-                roomSize: 1.6,
-                dampening: 1000,
-                wet: 0.66
-            });
-
-            var closedHatsWidener = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.StereoWidener({
-                width: 0.8,
-                wet: 0.7
-            });
-
-            // DRUMS PARALLEL COMPRESSION
-            var drumsAux = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Volume(0);
-
-            var bitCrusher = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.BitCrusher({
-                bits: 8
-            });
-
-            var drumsCompressor = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Compressor({
-                ratio: 20,
-                threshold: -12,
-                attack: .8,
-                release: 0.05,
-                knee: 10
-            });
-
-            var compressorGain = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Volume(-18);
-
-            // LEAD
-
-            var lead = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.FMSynth({
-                envelope: {
-                    attack: 1,
-                    sustain: 1,
-                    release: 1
-                }
-            });
-
-            var leadFilter = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Filter({
-                frequency: 800,
-                rolloff: -12
-            });
-
-            var leadReverb = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Reverb({
-                decay: 2.4,
-                wet: 0.66
-            });
-
-            var leadPingPong = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.PingPongDelay({
-                delayTime: '8n',
-                feedback: .66,
-                wet: 0.25
-            });
-
-            // LEAD OVERTONE
-
-            var leadOvertone1 = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.FMSynth();
-            var leadOvertone2 = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.PolySynth();
-
-            // VOLUMES
-            var polySynthVol = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Volume(-16);
-            var noiseVol = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Volume(-22);
-            var pianoVol = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Volume(0);
-            var kickVol = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Volume(0);
-            var snareVol = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Volume(-6);
-            var closedHatVol = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Volume(-12);
-            var leadVol = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Volume(-21);
-            var leadOvertone1Vol = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Volume(-9);
-            var leadOvertone2Vol = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Volume(-15);
-
-            // AUX
-            var drumsAuxVol = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Volume(-9);
-
-            // MASTER CHANNEL
-            var limiter = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Limiter(-0.01);
-
-            // ROUTING
-            // Sources
-            polySynth1.connect(polySynthADSR);
-            polySynth2.connect(polySynthADSR);
-            polySynth3.connect(polySynthADSR);
-            polySynth4.connect(polySynthADSR);
-            polySynth5.connect(polySynthVibrato);
-
-            polySynthVibrato.connect(polySynthADSR);
-
-            whiteNoise.connect(noiseVol);
-            noiseVol.connect(polySynthADSR);
-
-            polySynthADSR.connect(autoFilter);
-            autoFilter.connect(cutLowEnd);
-            cutLowEnd.connect(polySynthReverb);
-            polySynthReverb.connect(polySynthPingPong);
-            polySynthPingPong.connect(smoothHighEnd);
-            smoothHighEnd.connect(widener);
-            widener.connect(polySynthVol);
-            polySynthVol.connect(limiter);
-
-            pianoSampler.connect(pianoPingPong);
-            pianoPingPong.connect(pianoReverb);
-            pianoReverb.connect(pianoVol);
-            pianoVol.connect(limiter);
-
-            kick.connect(kickVol);
-            kickVol.connect(limiter);
-
-            snareSynth.connect(snareReverb);
-            snareReverb.connect(snareVol);
-            snareVol.connect(limiter);
-
-            closedHats.connect(closedHatsHuman);
-            closedHatsHuman.connect(closedHatsADSR);
-            closedHatsADSR.connect(closedHatsFilter);
-            // closedHats.connect(closedHatsFilter)
-            closedHatsFilter.connect(closedHatsReverb);
-            closedHatsReverb.connect(closedHatsWidener);
-            closedHatsWidener.connect(closedHatVol);
-            closedHatVol.connect(limiter);
-
-            snareReverb.connect(drumsAux);
-            kick.connect(drumsAux);
-            closedHats.connect(drumsAux);
-            // drumsAux.connect(drumsCompressor)
-            drumsAux.connect(bitCrusher);
-            bitCrusher.connect(drumsCompressor);
-            drumsCompressor.connect(compressorGain);
-            compressorGain.connect(drumsAuxVol);
-            drumsAuxVol.connect(limiter);
-
-            lead.connect(leadFilter);
-            leadFilter.connect(leadPingPong);
-            leadPingPong.connect(leadReverb);
-            leadReverb.connect(leadVol);
-            leadVol.connect(limiter);
-
-            leadOvertone1.connect(leadOvertone1Vol);
-            leadOvertone1Vol.connect(leadReverb);
-
-            leadOvertone2.connect(leadOvertone2Vol);
-            leadOvertone2Vol.connect(leadPingPong);
-
-            limiter.toMaster();
-
-            var chordDM7add9 = ['D3', 'E3', 'F#3', 'A3', 'C#3'];
-            var chordAbM7add9 = ['F#3', 'G#3', 'A#3', 'C#4', 'F4'];
-            var chordDbM7add9 = ['C#3', 'D#3', 'E3', 'G#3', 'B3'];
-            var chordAM7add9 = ['A#3', 'C3', 'D3', 'F4', 'A4'];
-
-            var chordPart = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Part(function (time, note) {
-                polySynth1.frequency.value = note[0];
-                polySynth2.frequency.value = note[1];
-                polySynth3.frequency.value = note[2];
-                polySynth4.frequency.value = note[3];
-                polySynth5.frequency.value = note[4];
-
-                polySynthADSR.triggerAttackRelease('3m', time);
-            }, [[0, chordDM7add9], ['1:0', chordAbM7add9]]);
-
-            var pianoReverse = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Part(function (time, note) {
-                pianoSampler.triggerAttack(note);
-            }, [[0, 'C3']]);
-
-            var vue = this;
-            var kickSeq = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Sequence(function (time, step) {
-                closedHatsHuman.volume.value = (Math.random() - 1) * 3;
-                closedHatsADSR.triggerAttackRelease('16n', time);
-                closedHats.triggerAttack('C3');
-
-                if (step == 0 || step == 8 || step == 14) {
-                    kick.triggerAttackRelease('D1', '8n', time);
-                    vue.moveLand();
-                }
-                if (step == 4 || step == 16) {
-                    snareSynth.triggerAttack('C3');
-                }
-            }, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], '16n');
-
-            var leadSeq = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Sequence(function (time, note) {
-                lead.triggerAttack(note);
-            }, ['F#4', 'A4', 'C#4'], '8n');
-
-            var leadOvertone1Seq = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Sequence(function (time, note) {
-                leadOvertone1.triggerAttackRelease(note, '32n');
-                var transpose = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Midi(note).transpose(+12);
-                leadOvertone2.triggerAttackRelease(transpose, '32n');
-            }, ['F#5', 'A5', 'C#5', 'F#5', 'E5'], '16n');
-
-            var leadOvertone2Seq = new __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Sequence(function (time, note) {
-                leadOvertone2.triggerAttackRelease(note, '32n');
-            }, ['F#5', 'A5', 'C#5', 'F#5', 'E5', 'A5', 'C#5'], '16n');
-
-            chordPart.loop = true;
-            chordPart.loopEnd = '2m';
-            chordPart.humanize = true;
-            pianoReverse.loop = true;
-            pianoReverse.loopEnd = '8m';
-            pianoReverse.humanize = true;
-
-            polySynthReverb.generate().then(function () {
-                reverbLoaded = true;
-                startTransport();
-            });
-
-            pianoReverb.generate().then(function () {
-                pianoReverbLoaded = true;
-                startTransport();
-            });
-
-            snareReverb.generate().then(function () {
-                snareReverbLoaded = true;
-                startTransport();
-            });
-
-            leadReverb.generate().then(function () {
-                leadReverbLoaded = true;
-                startTransport();
-            });
-
-            __WEBPACK_IMPORTED_MODULE_2_tone___default.a.context.latencyHint = 'playback';
-
-            function startTransport() {
-                if (reverbLoaded && samplerLoaded && pianoReverbLoaded && snareLoaded && snareReverbLoaded && closedHatsLoaded && leadReverbLoaded) {
-                    __WEBPACK_IMPORTED_MODULE_2_tone___default.a.Transport.start('+0.1');
-                    chordPart.start();
-                    pianoReverse.start();
-                    kickSeq.start();
-                    leadSeq.start();
-                    leadOvertone1Seq.start();
-                    leadOvertone2Seq.start();
-                }
-            }
-
-            // this.audioDatGui(autoFilter, polySynthReverb, widener, polySynthVol, noiseVol)
-        },
-        audioDatGui: function audioDatGui(autoFilter, polySynthReverb, widener, polySynthVol, noiseVol) {
-            var gui = new __WEBPACK_IMPORTED_MODULE_3_dat_gui__["a" /* default */].GUI();
-
-            var polySynthOpts = {
-                polySynthVol: polySynthVol.volume.value,
-                noiseVol: noiseVol.volume.value,
-
-                autofilter: {
-                    frequency: autoFilter.frequency.value,
-                    depth: autoFilter.depth.value,
-                    baseFrequency: autoFilter.baseFrequency,
-                    octaves: autoFilter.octaves,
-                    q: autoFilter.filter.Q.value
-                },
-
-                efx: {
-                    widener: widener.width.value,
-                    reverb: {
-                        Reverb_wet: polySynthReverb.wet.value,
-                        Reverb_decay: polySynthReverb.decay
-                    }
-                }
-            };
-
-            var updatePolySynth = function updatePolySynth() {
-                // Volumes
-                polySynthVol.volume.value = polySynthOpts.polySynthVol;
-                noiseVol.volume.value = polySynthOpts.noiseVol;
-
-                // Autofilter
-                autoFilter.frequency.value = polySynthOpts.autofilter.frequency;
-                autoFilter.baseFrequency = polySynthOpts.autofilter.baseFrequency;
-                autoFilter.depth.value = polySynthOpts.autofilter.depth;
-                autoFilter.octaves = polySynthOpts.autofilter.octaves;
-                autoFilter.filter.Q.value = polySynthOpts.autofilter.q;
-
-                // Efx
-                widener.width.value = polySynthOpts.efx.widener;
-                polySynthReverb.wet.value = polySynthOpts.efx.reverb.Reverb_wet;
-                polySynthReverb.decay = polySynthOpts.efx.reverb.Reverb_decay;
-            };
-
-            var g1 = gui.addFolder('PolySynth');
-
-            var g1_1 = g1.addFolder('Volumes');
-            g1_1.add(polySynthOpts, 'polySynthVol', -64, 0).onChange(updatePolySynth);
-            g1_1.add(polySynthOpts, 'noiseVol', -64, 0).onChange(updatePolySynth);
-
-            var g1_2 = g1.addFolder('AutoFilter');
-            g1_2.add(polySynthOpts.autofilter, 'frequency', 0, 30).onChange(updatePolySynth);
-            g1_2.add(polySynthOpts.autofilter, 'baseFrequency', 20, 20000).step(10).onChange(updatePolySynth);
-            g1_2.add(polySynthOpts.autofilter, 'depth', 0, 1).step(0.01).onChange(updatePolySynth);
-            g1_2.add(polySynthOpts.autofilter, 'octaves', 0, 10).step(0.1).onChange(updatePolySynth);
-            g1_2.add(polySynthOpts.autofilter, 'q', 0, 10).step(0.1).onChange(updatePolySynth);
-
-            var g1_3 = g1.addFolder('Efx');
-            g1_3.add(polySynthOpts.efx, 'widener', 0, 1).onChange(updatePolySynth);
-            g1_3.add(polySynthOpts.efx.reverb, 'Reverb_wet', 0, 1).onChange(updatePolySynth);
-            g1_3.add(polySynthOpts.efx.reverb, 'Reverb_decay', 0, 5, 0.1).onChange(updatePolySynth);
-        },
-        moveLand: function moveLand() {},
         init: function init() {
             var vue = this;
             var gui = new __WEBPACK_IMPORTED_MODULE_3_dat_gui__["a" /* default */].GUI();
 
-            // calcolo le dimensioni della finestra
-            this.size.width = window.innerWidth;
-            this.size.height = window.innerHeight;
+            this.width = window.innerWidth;
+            this.height = window.innerHeight;
 
-            // crea la scena
-            this.scene = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].Scene();
-            this.scene.background = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].Color(this.colors.black);
-            this.scene.fog = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].FogExp2(this.colors.black, 0.002, 1000);
-
-            // renderer setup
-            this.renderer = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].WebGLRenderer({
-                antialias: true
-            });
+            this.scene.background = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].Color(this.colors.white);
+            this.renderer.setClearColor = this.colors.black;
             this.renderer.setPixelRatio(window.devicePixelRatio);
-            this.renderer.setSize(this.size.width, this.size.height);
+            this.renderer.setSize(this.width, this.height);
+            document.body.appendChild(this.renderer.domElement);
 
-            this.renderer.autoClear = false;
-            this.renderer.gammaInput = true;
-            this.renderer.gammaOutput = true;
-
-            this.renderer.shadowMap.enabled = true;
-            this.renderer.shadowMap.type = __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].PCFSoftShadowMap;
-            document.body.appendChild(vue.renderer.domElement);
-
-            // imposta la camera
-            this.camera = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].PerspectiveCamera(45, this.size.width / this.size.height, 1, 10000);
+            // CAMERA
+            this.camera = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].PerspectiveCamera(45, this.width / this.height, 1, 10000);
             this.camera.position.set(0, 110, 300);
-            this.camera.far = 350;
-            this.camera.rotation.x = -0.25;
 
-            // this.controls = new THREE.OrbitControls(this.camera)
-            // this.controls.update()
+            // CONTROLS
+            this.controls = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].OrbitControls(this.camera);
+            this.controls.update();
 
-            // OGGETTI SULLA SCENA
-            var segments = 128;
-            var height = 30;
-            var geometryPlane = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].PlaneGeometry(2500, 2500, segments, segments);
-            geometryPlane.computeFaceNormals();
-            geometryPlane.computeVertexNormals();
+            var boxGeometry = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].BoxGeometry(100, 100, 100);
 
-            var materialPlane = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].MeshStandardMaterial({
-                color: this.colors.black,
-                // emissive: this.colors.black,
-                side: __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].FrontSide,
-                vertexColors: __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].FaceColors,
-                flatShading: true,
-                roughness: 1,
-                metalness: 0
-            });
+            // PARTICLES
+            this.particlesTexture = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].TextureLoader().load('/images/sprites/sprite02.png');
+            this.particlesTexture.minFilter = __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].NearestFilter;
+            this.particlesTexture.magFilter = __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].NearestFilter;
 
-            this.plane = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].Mesh(geometryPlane, materialPlane);
-            this.plane.name = 'Terrain';
-            this.plane.rotation.x = -90 * Math.PI / 180;
-            this.plane.castShadow = true;
-            this.plane.receiveShadow = true;
-            this.plane.geometry.dynamic = true;
-            for (var i = 0; i < this.plane.geometry.vertices.length; i++) {
-                this.plane.geometry.vertices[i].z = Math.random() * height;
-            }
-            this.plane.matrixAutoUpdate = true;
-
-            this.scene.add(this.plane);
-
-            // Oggetto in primo piano
-            var cubeGeometry = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].BoxGeometry(50, 50, 50);
-            var cubeMaterial = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].MeshStandardMaterial({
-                // color: this.colors.black,
-                // emissive: this.colors.black,
-                vertexColors: __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].FaceColors,
-                roughness: 1,
-                metalness: 0,
-                flatShading: true
-            });
-
-            this.obj.particleSystem = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].GPUParticleSystem({
-                maxParticles: 250000,
-                particleNoiseTex: new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].TextureLoader().load('/images/sprites/perlin-512.png'),
-                particleSpriteTex: new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].TextureLoader().load('/images/sprites/sphere.png')
-            });
-            this.scene.add(this.obj.particleSystem);
-            this.obj.particleSystem.position.set(0, 100, 40);
-
-            this.obj.particleSystem.init();
-
-            var cube = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].Mesh(cubeGeometry, cubeMaterial);
-            cube.position.set(0, 65, 40);
-            cube.castShadow = true;
-            cube.receiveShadow = true;
-
-            var testGeom = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].Geometry();
-            var colors = [];
-            for (var i = 0; i < 1000; i++) {
-                var vertex = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].Vector3();
-                vertex.x = Math.random() * 50 - 25;
-                vertex.y = Math.random() * 50 + 65;
-                vertex.z = Math.random() * 50 - 25;
-
-                // colors[ i ] = new THREE.Color( 0xffffff );
-                // colors[ i ].setHSL( ( vertex.x + 1000 ) / 2000, 1, 0.5 );
-                testGeom.vertices.push(vertex);
-            }
-            // testGeom.colors = colors
-
-            this.options = {
-                position: testGeom,
-                positionRandomness: .6,
-                velocity: new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].Vector3(),
-                velocityRandomness: .9,
-                color: this.colors.black,
-                colorRandomness: .1,
-                turbulence: 1,
-                lifetime: 2,
-                size: 3,
-                sizeRandomness: 3,
-                transparent: true,
-                opacity: 0.1
-            };
-
-            var spriteImg = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].TextureLoader().load('/images/sprites/sphere.png');
-            var particleMaterial = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].PointsMaterial({
-                size: 2,
-                color: this.colors.white,
-                // vertexColors: THREE.VertexColors,
-                map: spriteImg,
+            this.particlesMaterial = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].PointsMaterial({
+                color: 0xff0000,
+                size: 5,
+                map: this.particlesTexture,
                 alphaTest: 0.5,
-                transparent: true
+                blending: __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].AdditiveBlending
             });
-            // particleMaterial.lights = true
 
-            // var particles = new THREE.Points(testGeom, particleMaterial)
-            // particles.position.set(0, 0, 40)
-            // // this.scene.add(cube)
-            // this.scene.add(particles)
-
-
-            // ILLUMINAZIONE
-            var lightLeft = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].SpotLight(this.colors.white, .1);
-            lightLeft.castShadow = true;
-            lightLeft.shadow.camera.left = -50; // --------- added
-            lightLeft.shadow.camera.right = 50;
-            lightLeft.shadow.camera.top = 50;
-            lightLeft.shadow.camera.bottom = -50;
-            lightLeft.shadow.camera.near = 10;
-            lightLeft.shadow.camera.far = 400;
-            lightLeft.position.set(-220, 550, -180);
-            this.scene.add(lightLeft);
-
-            var lightRight = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].SpotLight(this.colors.white, .08);
-            lightRight.castShadow = true;
-            lightRight.shadow.camera.left = -50; // --------- added
-            lightRight.shadow.camera.right = 50;
-            lightRight.shadow.camera.top = 50;
-            lightRight.shadow.camera.bottom = -50;
-            lightRight.shadow.camera.near = 10;
-            lightRight.shadow.camera.far = 400;
-            lightRight.position.set(220, 550, -180);
-            this.scene.add(lightRight);
-
-            var rectLightLeft = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].RectAreaLight(this.colors.yellow, 50, 2, 30);
-            rectLightLeft.position.set(-100, 230, 250);
-            rectLightLeft.rotation.x = Math.PI / 8 * 5;
-            rectLightLeft.rotation.y = Math.PI / 8 * 1;
-            this.scene.add(rectLightLeft);
-
-            var rectLighRight = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].RectAreaLight(this.colors.yellow, 50, 2, 30);
-            rectLighRight.position.set(100, 230, 250);
-            rectLighRight.rotation.x = Math.PI / 8 * 5;
-            rectLighRight.rotation.y = Math.PI / 8 * -1;
-            this.scene.add(rectLighRight);
-
-            // DAT GUI
-            if (this.datGui) {
-                var guiL = gui.addFolder('neonLeft');
-                guiL.add(rectLightLeft, 'intensity', 0, 1000);
-                guiL.add(rectLightLeft.position, 'x', -300, 300);
-                guiL.add(rectLightLeft.position, 'y', 0, 300);
-                guiL.add(rectLightLeft.position, 'z', 0, 300);
-                guiL.add(rectLightLeft.rotation, 'x', 0, Math.PI);
-                guiL.add(rectLightLeft.rotation, 'y', 0, Math.PI);
-                guiL.add(rectLightLeft.rotation, 'z', 0, Math.PI);
-                var guiR = gui.addFolder('neonRight');
-                guiR.add(rectLighRight, 'intensity', 0, 1000);
-                guiR.add(rectLighRight.position, 'x', -300, 300);
-                guiR.add(rectLighRight.position, 'y', 0, 300);
-                guiR.add(rectLighRight.position, 'z', 0, 300);
-                guiR.add(rectLighRight.rotation, 'x', 0, Math.PI);
-                guiR.add(rectLighRight.rotation, 'y', 0, Math.PI);
-                guiR.add(rectLighRight.rotation, 'z', 0, Math.PI);
-                var g4 = gui.addFolder('cube position');
-                g4.add(cube.position, 'x', 0, 200);
-                g4.add(cube.position, 'y', 0, 200);
-                g4.add(cube.position, 'z', 0, 200);
-                var g1 = gui.addFolder('lightright');
-                g1.add(lightRight, 'intensity', 0, 1).step(0.01);
-                g1.add(lightRight.position, 'x', -500, 500);
-                g1.add(lightRight.position, 'y', -500, 500);
-                g1.add(lightRight.position, 'z', -500, 500);
-                g1.add(lightRight, 'visible', true, false);
-                var g2 = gui.addFolder('lightLeft');
-                g2.add(lightLeft, 'intensity', 0, 1).step(0.01);
-                g2.add(lightLeft.position, 'x', -500, 500);
-                g2.add(lightLeft.position, 'y', -500, 500);
-                g2.add(lightLeft.position, 'z', -500, 500);
-                g2.add(lightLeft, 'visible', true, false);
-                var g3 = gui.addFolder('Camera');
-                g3.add(this.camera.position, 'x', -500, 500);
-                g3.add(this.camera.position, 'y', -500, 500);
-                g3.add(this.camera.position, 'z', -500, 500);
-                g3.add(this.camera.rotation, 'x', -1, 1);
-                g3.add(this.camera.rotation, 'y', -Math.PI, Math.PI);
-                g3.add(this.camera.rotation, 'z', -Math.PI, Math.PI);
+            this.particlesGeometry = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].Geometry();
+            var numVerts = 1000;
+            var newVerts = __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].GeometryUtilsCustom.randomPointsInGeometry(boxGeometry, numVerts);
+            for (var i = 0; i < newVerts.length; i++) {
+                this.particlesGeometry.vertices.push(newVerts[i]);
             }
+            this.particles = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].Points(this.particlesGeometry, this.particlesMaterial);
+            this.scene.add(this.particles);
 
-            // HELPER
-            if (this.helpers) {
-                var rectLighRightHelper = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].RectAreaLightHelper(rectLighRight);
-                var rectLightLeftHelper = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].RectAreaLightHelper(rectLightLeft);
-                lightLeft.shadowCameraHelper = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].CameraHelper(lightLeft.shadow.camera); // - added
-                lightRight.shadowCameraHelper = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].CameraHelper(lightRight.shadow.camera); // - added
-                this.scene.add(lightLeft.shadowCameraHelper); // -------- added
-                this.scene.add(lightRight.shadowCameraHelper); // -------- added
-                this.scene.add(rectLighRightHelper);
-                this.scene.add(rectLightLeftHelper);
-                this.scene.add(new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].AxesHelper(300));
-                this.scene.add(new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].SpotLightHelper(lightLeft, 2));
-            }
-
-            // POST PROCESSING
-            if (this.postProcessingActive) {
-                this.postProcessing();
-            }
+            this.render();
 
             window.addEventListener('resize', this.onWindowResize, false);
             window.addEventListener('mousemove', this.onMouseMove, false);
-            console.log(this.obj.particleSystem);
         },
         animate: function animate() {
             var vue = this;
-            var delta = this.clock.getDelta() * this.timeScale;
-
             requestAnimationFrame(vue.animate);
 
-            // var meter = this.audio.meters.tom.getValue()
-            // var meterHats = this.audio.env.hatsADSR.getValueAtTime()
-            //
-            //
-            // for (var i = 0; i < this.plane.geometry.vertices.length; i++) {
-            //     var variation = this.plane.geometry.vertices[i].z + meter
-            //     this.plane.geometry.vertices[i].z = variation
-            // }
-            // this.plane.geometry.verticesNeedUpdate = true;
+            var delta = this.clock.getDelta();
 
-            // this.shaders.glitch.uniforms['amount'].value = Math.random()
-            // this.shaders.glitch.uniforms['angle'].value = Math.random()
-            // var value = Boolean(Math.round(Math.random()))
-            // this.shaders.glitch.uniforms['byp'].value = value
-            // // var date = Date.now()
-            // // var delta = Math.abs(Math.cos(date) * Math.sin(date)) * 4
-            // // console.log(delta)
-            // //
-            // // for (var i = 0; i < this.plane.geometry.vertices.length; i++) {
-            // //     this.plane.geometry.vertices[i].z = this.plane.geometry.vertices[i].z * delta
-            // // }
-            //
-            // this.shaders.film.uniforms['time'].value += delta
-            // this.shaders.film.uniforms['sIntensity'].value = Math.random()
-            // this.shaders.film.uniforms.nIntensity.value = Math.random() / 10
-
-            // this.tick += delta
-            // if (this.tick < 0) this.tick = 0
-            //
-            // if (delta > 0) {
-            //     this.options.position.x = Math.sin(this.tick * this.spawnerOptions.horizontalSpeed) * 30 * Math.sin(meterHats) * 4
-            //     this.options.position.y = Math.sin(this.tick * this.spawnerOptions.verticalSpeed) * 10 * Math.sin(meterHats) * 4
-            //     this.options.position.z = Math.sin(this.tick * this.spawnerOptions.horizontalSpeed + this.spawnerOptions.verticalSpeed) * 5 * Math.sin(meterHats) * 4
-            //
-            //     for (var i = 0; i < this.spawnerOptions.spawnRate * delta; i++) {
-            //         this.obj.particleSystem.spawnParticle(this.options)
-            //     }
-            // }
-            // // this.obj.particleSystem.dispose(new THREE.Vector3(0, 100, 0))
-            // this.obj.particleSystem.update(this.tick)
-
-            // this.controls.update()
             this.render();
         },
         onWindowResize: function onWindowResize() {
-            this.size.width = window.innerWidth;
-            this.size.height = window.innerHeight;
+            this.width = window.innerWidth;
+            this.height = window.innerHeight;
 
-            this.camera.aspect = this.size.width / this.size.height;
+            this.camera.aspect = this.width / this.height;
             this.camera.updateProjectionMatrix();
 
-            this.renderer.setSize(this.size.width, this.size.height);
-
+            this.renderer.setSize(this.width, this.height);
             this.render();
         },
-        onMouseMove: function onMouseMove(event) {
-            var x = (event.clientX / this.size.width - 0.5) * -2;
-            var y = (event.clientY / this.size.height - 0.5) * 2;
-            this.camera.position.x = Math.sin(x) * 10;
-            this.camera.position.y = Math.sin(y) * 5 + 110;
-            this.camera.position.z = Math.cos(x) * Math.cos(y) * 5 + 300;
-            this.camera.rotation.y = Math.sin(x) / 4 * -1;
-        },
+        onMouseMove: function onMouseMove(event) {},
         render: function render() {
-            var vue = this;
-            if (this.postProcessingActive) {
-                this.composer.render();
-            } else {
-                this.renderer.render(vue.scene, vue.camera);
-            }
-        },
-        postProcessing: function postProcessing() {
-            //COMPOSER
-            this.composer = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].EffectComposer(this.renderer);
-
-            //PASSES
-            this.shaders.mainRender = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].RenderPass(this.scene, this.camera);
-            this.shaders.film = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].ShaderPass(__WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].FilmShader);
-            this.shaders.glitch = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].GlitchPass();
-            this.shaders.hBlur = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].ShaderPass(__WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].HorizontalBlurShader);
-            this.shaders.vignette = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].ShaderPass(__WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].VignetteShader);
-            this.shaders.vBlur = new __WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].ShaderPass(__WEBPACK_IMPORTED_MODULE_0__three_setup__["a" /* default */].VerticalBlurShader);
-
-            this.shaders.film.uniforms['grayscale'].value = 0;
-            this.shaders.vignette.uniforms['offset'].value = 1.2;
-            this.shaders.vignette.uniforms['darkness'].value = 1.2;
-            this.shaders.hBlur.uniforms['h'].value = 0.0002;
-            this.shaders.vBlur.uniforms['v'].value = 0.0002;
-
-            this.composer.addPass(this.shaders.mainRender);
-            this.composer.addPass(this.shaders.vignette);
-            this.composer.addPass(this.shaders.film);
-            this.composer.addPass(this.shaders.hBlur);
-            this.composer.addPass(this.shaders.vBlur);
-
-            this.shaders.film.renderToScreen = true;
-
-            this.shaders.glitch.uniforms['byp'].value = false;
-            // this.shaders.vBlur.renderToScreen = true
-            // this.shaders.glitch.renderToScreen = true
-            // dof.renderToScreen = true
+            this.controls.update();
+            this.renderer.render(this.scene, this.camera);
         }
-
     },
     mounted: function mounted() {
         this.init();
         this.animate();
-        this.audioSetup();
     }
 });
 
@@ -12948,9 +12157,11 @@ __webpack_require__(39);
 __webpack_require__(40);
 
 __webpack_require__(41);
-__webpack_require__(42);
 
+__webpack_require__(42);
 __webpack_require__(43);
+
+__webpack_require__(44);
 /* harmony default export */ __webpack_exports__["a"] = (__WEBPACK_IMPORTED_MODULE_0_three__);
 
 /***/ }),
@@ -62387,6 +61598,312 @@ THREE.ShadowMapViewer.prototype.constructor = THREE.ShadowMapViewer;
 /* 40 */
 /***/ (function(module, exports) {
 
+/**
+ * @author mrdoob / http://mrdoob.com/
+ * @author alteredq / http://alteredqualia.com/
+ */
+
+THREE.GeometryUtilsCustom = {
+
+	// Merge two geometries or geometry and geometry from object (using object's transform)
+
+	merge: function ( geometry1, geometry2, materialIndexOffset ) {
+
+		console.warn( 'THREE.GeometryUtils: .merge() has been moved to Geometry. Use geometry.merge( geometry2, matrix, materialIndexOffset ) instead.' );
+
+		var matrix;
+
+		if ( geometry2 instanceof THREE.Mesh ) {
+
+			geometry2.matrixAutoUpdate && geometry2.updateMatrix();
+
+			matrix = geometry2.matrix;
+			geometry2 = geometry2.geometry;
+
+		}
+
+		geometry1.merge( geometry2, matrix, materialIndexOffset );
+
+	},
+
+	// Get random point in triangle (via barycentric coordinates)
+	// 	(uniform distribution)
+	// 	http://www.cgafaq.info/wiki/Random_Point_In_Triangle
+
+	randomPointInTriangle: function () {
+
+		var vector = new THREE.Vector3();
+
+		return function ( vectorA, vectorB, vectorC ) {
+
+			var point = new THREE.Vector3();
+
+			var a = Math.random();
+			var b = Math.random();
+
+			if ( ( a + b ) > 1 ) {
+
+				a = 1 - a;
+				b = 1 - b;
+
+			}
+
+			var c = 1 - a - b;
+
+			point.copy( vectorA );
+			point.multiplyScalar( a );
+
+			vector.copy( vectorB );
+			vector.multiplyScalar( b );
+
+			point.add( vector );
+
+			vector.copy( vectorC );
+			vector.multiplyScalar( c );
+
+			point.add( vector );
+
+			return point;
+
+		};
+
+	}(),
+
+	// Get random point in face (triangle)
+	// (uniform distribution)
+
+	randomPointInFace: function ( face, geometry ) {
+
+		var vA, vB, vC;
+
+		vA = geometry.vertices[ face.a ];
+		vB = geometry.vertices[ face.b ];
+		vC = geometry.vertices[ face.c ];
+
+		return THREE.GeometryUtilsCustom.randomPointInTriangle( vA, vB, vC );
+
+	},
+
+	// Get uniformly distributed random points in mesh
+	// 	- create array with cumulative sums of face areas
+	//  - pick random number from 0 to total area
+	//  - find corresponding place in area array by binary search
+	//	- get random point in face
+
+	randomPointsInGeometry: function ( geometry, n ) {
+
+		var face, i,
+			faces = geometry.faces,
+			vertices = geometry.vertices,
+			il = faces.length,
+			totalArea = 0,
+			cumulativeAreas = [],
+			vA, vB, vC;
+
+		// precompute face areas
+
+		for ( i = 0; i < il; i ++ ) {
+
+			face = faces[ i ];
+
+			vA = vertices[ face.a ];
+			vB = vertices[ face.b ];
+			vC = vertices[ face.c ];
+
+			face._area = THREE.GeometryUtilsCustom.triangleArea( vA, vB, vC );
+
+			totalArea += face._area;
+
+			cumulativeAreas[ i ] = totalArea;
+
+		}
+
+		// binary search cumulative areas array
+
+		function binarySearchIndices( value ) {
+
+			function binarySearch( start, end ) {
+
+				// return closest larger index
+				// if exact number is not found
+
+				if ( end < start )
+					return start;
+
+				var mid = start + Math.floor( ( end - start ) / 2 );
+
+				if ( cumulativeAreas[ mid ] > value ) {
+
+					return binarySearch( start, mid - 1 );
+
+				} else if ( cumulativeAreas[ mid ] < value ) {
+
+					return binarySearch( mid + 1, end );
+
+				} else {
+
+					return mid;
+
+				}
+
+			}
+
+			var result = binarySearch( 0, cumulativeAreas.length - 1 );
+			return result;
+
+		}
+
+		// pick random face weighted by face area
+
+		var r, index,
+			result = [];
+
+		var stats = {};
+
+		for ( i = 0; i < n; i ++ ) {
+
+			r = Math.random() * totalArea;
+
+			index = binarySearchIndices( r );
+
+			result[ i ] = THREE.GeometryUtilsCustom.randomPointInFace( faces[ index ], geometry );
+
+			if ( ! stats[ index ] ) {
+
+				stats[ index ] = 1;
+
+			} else {
+
+				stats[ index ] += 1;
+
+			}
+
+		}
+
+		return result;
+
+	},
+
+	randomPointsInBufferGeometry: function ( geometry, n ) {
+
+		var i,
+			vertices = geometry.attributes.position.array,
+			totalArea = 0,
+			cumulativeAreas = [],
+			vA, vB, vC;
+
+		// precompute face areas
+		vA = new THREE.Vector3();
+		vB = new THREE.Vector3();
+		vC = new THREE.Vector3();
+
+		// geometry._areas = [];
+		var il = vertices.length / 9;
+
+		for ( i = 0; i < il; i ++ ) {
+
+			vA.set( vertices[ i * 9 + 0 ], vertices[ i * 9 + 1 ], vertices[ i * 9 + 2 ] );
+			vB.set( vertices[ i * 9 + 3 ], vertices[ i * 9 + 4 ], vertices[ i * 9 + 5 ] );
+			vC.set( vertices[ i * 9 + 6 ], vertices[ i * 9 + 7 ], vertices[ i * 9 + 8 ] );
+
+			totalArea += THREE.GeometryUtilsCustom.triangleArea( vA, vB, vC );
+
+			cumulativeAreas.push( totalArea );
+
+		}
+
+		// binary search cumulative areas array
+
+		function binarySearchIndices( value ) {
+
+			function binarySearch( start, end ) {
+
+				// return closest larger index
+				// if exact number is not found
+
+				if ( end < start )
+					return start;
+
+				var mid = start + Math.floor( ( end - start ) / 2 );
+
+				if ( cumulativeAreas[ mid ] > value ) {
+
+					return binarySearch( start, mid - 1 );
+
+				} else if ( cumulativeAreas[ mid ] < value ) {
+
+					return binarySearch( mid + 1, end );
+
+				} else {
+
+					return mid;
+
+				}
+
+			}
+
+			var result = binarySearch( 0, cumulativeAreas.length - 1 );
+			return result;
+
+		}
+
+		// pick random face weighted by face area
+
+		var r, index,
+			result = [];
+
+		for ( i = 0; i < n; i ++ ) {
+
+			r = Math.random() * totalArea;
+
+			index = binarySearchIndices( r );
+
+			// result[ i ] = THREE.GeometryUtilsCustom.randomPointInFace( faces[ index ], geometry, true );
+			vA.set( vertices[ index * 9 + 0 ], vertices[ index * 9 + 1 ], vertices[ index * 9 + 2 ] );
+			vB.set( vertices[ index * 9 + 3 ], vertices[ index * 9 + 4 ], vertices[ index * 9 + 5 ] );
+			vC.set( vertices[ index * 9 + 6 ], vertices[ index * 9 + 7 ], vertices[ index * 9 + 8 ] );
+			result[ i ] = THREE.GeometryUtilsCustom.randomPointInTriangle( vA, vB, vC );
+
+		}
+
+		return result;
+
+	},
+
+	// Get triangle area (half of parallelogram)
+	// http://mathworld.wolfram.com/TriangleArea.html
+
+	triangleArea: function () {
+
+		var vector1 = new THREE.Vector3();
+		var vector2 = new THREE.Vector3();
+
+		return function ( vectorA, vectorB, vectorC ) {
+
+			vector1.subVectors( vectorB, vectorA );
+			vector2.subVectors( vectorC, vectorA );
+			vector1.cross( vector2 );
+
+			return 0.5 * vector1.length();
+
+		};
+
+	}(),
+
+	center: function ( geometry ) {
+
+		console.warn( 'THREE.GeometryUtils: .center() has been moved to Geometry. Use geometry.center() instead.' );
+		return geometry.center();
+
+	}
+
+};
+
+
+/***/ }),
+/* 41 */
+/***/ (function(module, exports) {
+
 /*
  * GPU Particle System
  * @author flimshaw - Charlie Hoey - http://charliehoey.com
@@ -62891,7 +62408,7 @@ THREE.GPUParticleContainer.prototype.constructor = THREE.GPUParticleContainer;
 
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports) {
 
 /**
@@ -63925,7 +63442,7 @@ THREE.Projector = function () {
 
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports) {
 
 /**
@@ -65084,7 +64601,7 @@ THREE.CanvasRenderer = function ( parameters ) {
 
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports) {
 
 THREE.GlowShader = {
@@ -65103,7 +64620,7 @@ THREE.GlowShader = {
 };
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -65407,7 +64924,7 @@ module.perlin3 = function (x, y, z) {
 /* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(0)))
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;(function(root, factory){
@@ -89791,7 +89308,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;(function(root, factory){
 }));
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -92312,27 +91829,16 @@ var index = {
 
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _vm._m(0)
+  return _c("div", { attrs: { id: "app" } })
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { attrs: { id: "app" } }, [
-      _c("div", { attrs: { id: "call-to-action" } }, [
-        _c("a", { staticClass: "btn", attrs: { href: "#" } }, [_vm._v("Visit")])
-      ])
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 module.exports = { render: render, staticRenderFns: staticRenderFns }
 if (false) {
@@ -92343,13 +91849,13 @@ if (false) {
 }
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(49);
+var content = __webpack_require__(50);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -92357,7 +91863,7 @@ var transform;
 var options = {}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(50)(content, options);
+var update = __webpack_require__(51)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -92374,7 +91880,7 @@ if(false) {
 }
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(1)(false);
@@ -92388,7 +91894,7 @@ exports.push([module.i, "/*! normalize.css v8.0.0 | MIT License | github.com/nec
 
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -92434,7 +91940,7 @@ var singleton = null;
 var	singletonCounter = 0;
 var	stylesInsertedAtTop = [];
 
-var	fixUrls = __webpack_require__(51);
+var	fixUrls = __webpack_require__(52);
 
 module.exports = function(list, options) {
 	if (typeof DEBUG !== "undefined" && DEBUG) {
@@ -92747,7 +92253,7 @@ function updateLink (link, options, obj) {
 
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports) {
 
 
@@ -92842,7 +92348,7 @@ module.exports = function (css) {
 
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
