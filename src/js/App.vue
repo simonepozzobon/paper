@@ -156,7 +156,7 @@ export default {
 
             class Points extends MeshComponent {
                 build(params = {}) {
-                    return new THREE.Points(params.geom, params.mat)
+                    return new THREE.Points(params.geometry, params.material)
                 }
             }
 
@@ -186,149 +186,18 @@ export default {
             for (var i = 0; i < newVerts.length; i++) {
                 this.particlesGeometry.vertices.push(newVerts[i])
             }
-            this.particles = new THREE.Points(this.particlesGeometry, this.particlesMaterial)
-            this.particles.position.set(0, 50, 0)
 
-            var particles = new Points({
-                geom: this.particlesGeometry,
-                mat: this.particlesMaterial
-            }).addTo(this.whs)
+            this.particles = new THREE.Points(this.particlesGeometry, this.particlesMaterial)
+
+            const particles = new Points({this.particlesGeometry, this.particlesMaterial}).addTo(this.whs)
 
 
             const loop = new Loop((clock) => {
-                console.log(clock)
+                for (var i = 0; i < this.particlesGeometry.vertices.length; i++) {
+                }
             }).start(this.whs)
 
             this.whs.start();
-        },
-        init: function() {
-            var vue = this
-
-            //
-            // SCENE & SETUP
-            //
-            this.width = window.innerWidth
-            this.height = window.innerHeight
-
-            this.scene.background = new THREE.Color(this.colors.white)
-            this.scene.fog = this.fog
-
-            // this.renderer.setClearColor = this.colors.black
-            this.renderer.setPixelRatio(window.devicePixelRatio)
-            this.renderer.setSize(this.width, this.height)
-
-            document.body.appendChild(this.renderer.domElement)
-
-
-            //
-            // CAMERA
-            //
-
-            this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 1, 10000)
-            this.camera.position.set(0, 110, 300)
-
-
-            //
-            // CONTROLS
-            //
-
-            this.controls = new THREE.OrbitControls(this.camera)
-            this.controls.update()
-
-
-            //
-            // PARTICLES
-            //
-
-            /* Geometry to morph */
-            var boxGeometry = new THREE.BoxGeometry(100, 100, 100)
-
-
-            /* Texture */
-            this.particlesTexture = new THREE.TextureLoader().load('/images/sprites/sprite02.png')
-            this.particlesTexture.minFilter = THREE.NearestFilter
-            this.particlesTexture.magFilter = THREE.NearestFilter
-
-            /* Material */
-            this.particlesMaterial = new THREE.PointsMaterial({
-                color: 0xff0000,
-                size: 5,
-                map: this.particlesTexture,
-                alphaTest: 0.5,
-                blending: THREE.AdditiveBlending,
-            })
-
-            /* Geometry */
-            this.particlesGeometry = new THREE.Geometry()
-            var numVerts = 1000
-            var newVerts = THREE.GeometryUtilsCustom.randomPointsInGeometry(boxGeometry, numVerts)
-            for (var i = 0; i < newVerts.length; i++) {
-                this.particlesGeometry.vertices.push(newVerts[i])
-            }
-            this.particles = new THREE.Points(this.particlesGeometry, this.particlesMaterial)
-            this.particles.position.set(0, 50, 0)
-            this.scene.add(this.particles)
-
-            this.particlesInitials = this.particlesGeometry.clone()
-
-
-            //
-            // RENDER
-            //
-
-            this.render()
-
-
-            window.addEventListener('resize', this.onWindowResize, false)
-            window.addEventListener('mousemove', this.onMouseMove, false)
-        },
-        animate: function() {
-            var vue = this
-            requestAnimationFrame(vue.animate)
-
-
-            //
-            // CLOCK
-            //
-
-            var delta = this.clock.getDelta()
-            this.tick += delta
-            if (this.tick < 0) this.tick = 0
-
-
-            //
-            // ANIMATE PARTICLES
-            //
-            var g = 9.8
-            var m = 2
-            var acc = m * g
-
-            var initials = this.particlesInitials.vertices
-            var vertices = this.particles.geometry.vertices
-
-
-            for (var i = 0; i < vertices.length; i++) {
-                if (vertices[i].y >= -60) {
-                    vertices[i].y = -0.5 * (acc * this.tick * this.tick) + initials[i].y
-                }
-            }
-
-            this.particles.geometry.verticesNeedUpdate = true
-
-
-            this.render()
-        },
-        onWindowResize: function() {
-            this.width = window.innerWidth
-            this.height = window.innerHeight
-
-            this.scene.fog = this.fog
-
-            this.camera.aspect = this.width / this.height
-            this.camera.updateProjectionMatrix()
-
-            this.renderer.setSize(this.width, this.height)
-            this.render()
         },
         onMouseMove: function(event) {
 
